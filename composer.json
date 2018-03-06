@@ -29,7 +29,7 @@
         "symfony/routing": "^3.4"
     },
     "require-dev": {
-        "edmondscommerce/phpqa": "^0.0.1",
+        "edmondscommerce/phpqa": "dev-master@dev",
         "guzzle/guzzle": "^3.9"
     }
 }
