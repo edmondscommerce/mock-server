@@ -13,7 +13,7 @@ class MockServer
     /**
      * @var string
      */
-    private $ip;
+    private $ipAddress;
     /**
      * @var int
      */
@@ -24,11 +24,11 @@ class MockServer
      * MockServer constructor.
      *
      * @param string $routerPath
-     * @param string $ip
+     * @param string $ipAddress
      * @param int $port
      * @throws \Exception
      */
-    public function __construct(string $routerPath, string $ip = null, int $port = null)
+    public function __construct(string $routerPath, string $ipAddress = null, int $port = null)
     {
         if (!is_file($routerPath))
         {
@@ -36,7 +36,7 @@ class MockServer
         }
         $this->routerPath = realpath($routerPath);
 
-        $this->ip     = ($ip ?? MockServerConfig::MOCKSERVER_IP);
+        $this->ipAddress     = ($ipAddress ?? MockServerConfig::MOCKSERVER_IP);
         $this->port   = ($port ?? MockServerConfig::MOCKSERVER_PORT);
         $this->tmpDir = $this->getTempDirectory();
     }
@@ -99,7 +99,7 @@ class MockServer
     {
         //Get the configuration
         $path = $this->routerPath;
-        $ip   = $this->ip;
+        $ipAddress   = $this->ipAddress;
         $port = $this->port;
 
         //Stop the server if it is already running
@@ -118,14 +118,14 @@ class MockServer
 
         //Start the server
         //The -t denotes a base directory, we do a check on the path given to see if we are working with a router or not
-        $command = sprintf(
+        $commandToExecute = sprintf(
             'nohup php -S %s:%d %s > /dev/null 2>/dev/null &',
-            $ip,
+            $ipAddress,
             $port,
             $path
         );
 
-        exec($command, $output, $exitCode);
+        exec($commandToExecute, $commandOutput, $exitCode);
 
         //Sleep to allow the web server to start, need to keep this as low as we can to ensure tests don't take forever
         //Maximum attempts to try and connect before we fail out
@@ -159,7 +159,7 @@ class MockServer
     {
         try
         {
-            $pid = $this->getServerPID();
+            $this->getServerPID();
         } catch (\Exception $e)
         {
             return false;
@@ -180,19 +180,19 @@ class MockServer
         //-f Matches against the process name AND the arguments which is how we denote the web server from other PHP processes
         $command = 'pgrep -f "php -S"';
 
-        exec($command, $output, $exitCode);
+        exec($command, $commandOutput, $exitCode);
 
-        if (count($output) > 1)
+        if (count($commandOutput) > 1)
         {
             throw new \Exception('Found multiple instances of the PHP server');
         }
 
-        if (count($output) == 0)
+        if (count($commandOutput) == 0)
         {
             throw new \Exception('No instances of PHP server are running');
         }
 
-        $pid = trim(array_shift($output));
+        $pid = trim(array_shift($commandOutput));
 
         if (is_numeric($pid))
         {

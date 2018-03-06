@@ -185,6 +185,8 @@ class StaticRouter
         $responsePath = MockServer::getTempDirectory().'/response.json';
         $output = $response->getContent();
 
-
+        if (file_put_contents($responsePath, json_encode($output)) === false) {
+            throw new Exception('Could not write response output to '.$responsePath);
+        }
     }
 }
