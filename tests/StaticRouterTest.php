@@ -46,6 +46,11 @@ class StaticRouterTest extends TestCase
         $this->assertEquals('Found it', $result->getContent());
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @throws \Exception
+     */
+
     public function testItWillDetectTheRequestUri()
     {
         //Fake the server request
@@ -58,6 +63,11 @@ class StaticRouterTest extends TestCase
         $this->assertInstanceOf(Response::class, $result);
         $this->assertEquals('Detected', $result->getContent());
     }
+
+    /**
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @throws \Exception
+     */
 
     public function testItCanHandleCallbackRoutes()
     {
@@ -74,6 +84,7 @@ class StaticRouterTest extends TestCase
     }
 
     /**
+     * @SuppressWarnings(PHPMD.StaticAccess)
      * @throws \Exception
      */
     public function testItWillCreateRequestFilesOnRequest()
@@ -85,6 +96,12 @@ class StaticRouterTest extends TestCase
 
         $this->assertFileExists($logDir.'/request.json');
     }
+
+    /**
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @throws \Exception
+     */
 
     public function testTheRequestFileWillContainRequiredValues()
     {

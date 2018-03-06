@@ -23,6 +23,7 @@ class MockServer
     /**
      * MockServer constructor.
      *
+     * @SuppressWarnings(PHPMD.StaticAccess)
      * @param string $routerPath
      * @param string $ipAddress
      * @param int $port
@@ -92,6 +93,7 @@ class MockServer
     /**
      * Start the mock web server
      *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      * @return bool
      * @throws \Exception
      */
@@ -171,6 +173,7 @@ class MockServer
     /**
      * Gets the PHP server's PID
      *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      * @return int
      * @throws \Exception
      */
@@ -203,6 +206,7 @@ class MockServer
     }
 
     /**
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      * @return bool
      */
     public function stopServer(): bool

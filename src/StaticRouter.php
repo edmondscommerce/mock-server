@@ -98,6 +98,7 @@ class StaticRouter
     }
 
     /**
+     * @SuppressWarnings(PHPMD.StaticAccess)
      * @param string $requestUri
      * @return array
      * @throws Exception
@@ -128,6 +129,8 @@ class StaticRouter
     }
 
     /**
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     * @SuppressWarnings(PHPMD.Superglobals)
      * @param string $requestUri
      * @return Response
      * @throws Exception
@@ -164,6 +167,7 @@ class StaticRouter
     }
 
     /**
+     * @SuppressWarnings(PHPMD.StaticAccess)
      * @param Request $request
      * @throws Exception
      */
@@ -179,6 +183,12 @@ class StaticRouter
             throw new Exception('Could not write request output to '.$requestPath);
         }
     }
+
+    /**
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     * @param Response $response
+     * @throws Exception
+     */
 
     protected function logResponse(Response $response)
     {

@@ -19,6 +19,7 @@ class MockServerTest extends TestCase
 
 
     /**
+     * @SuppressWarnings(PHPMD.StaticAccess)
      * @throws \Exception
      */
     public function setUp()
@@ -40,6 +41,7 @@ class MockServerTest extends TestCase
     }
 
     /**
+     * @SuppressWarnings(PHPMD.StaticAccess)
      * @skip
      * @throws \Exception
      */
@@ -88,6 +90,11 @@ class MockServerTest extends TestCase
 
         $this->assertInstanceOf(MockServerRequest::class, $request);
     }
+
+    /**
+     * @SuppressWarnings(PHPMD.StaticAccess)
+     * @throws \Exception
+     */
 
     public function testItWillClearTheRequestOnStart()
     {
