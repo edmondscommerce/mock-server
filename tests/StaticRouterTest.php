@@ -76,15 +76,17 @@ class StaticRouterTest extends TestCase
     /**
      * @throws \Exception
      */
-    public function testItWillCreateResponseFilesOnRequest()
+    public function testItWillCreateRequestFilesOnRequest()
     {
         $logDir = MockServer::getTempDirectory();
-        $this->router->addRoute('/', 'Test');
 
-        $this->assertFileExists($logDir.'/response.json');
+        $this->router->addRoute('/', 'Test');
+        $this->router->run('/');
+
+        $this->assertFileExists($logDir.'/request.json');
     }
 
-    public function testTheResponseFileWillContainRequiredValues()
+    public function testTheRequestFileWillContainRequiredValues()
     {
         $logDir = MockServer::getTempDirectory();
         $this->router->addRoute('/', 'Body output');
@@ -94,7 +96,7 @@ class StaticRouterTest extends TestCase
         $_GET = ['page' => 1, 'limit' => 10];
 
         $this->router->run();
-        $response = @file_get_contents($logDir.'/response.json');
+        $response = @file_get_contents($logDir.'/request.json');
 
         $this->assertInternalType('string', $response);
         $this->assertEquals([

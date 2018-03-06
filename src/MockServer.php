@@ -25,18 +25,19 @@ class MockServer
      *
      * @param string $routerPath
      * @param string $ip
-     * @param int    $port
+     * @param int $port
      * @throws \Exception
      */
     public function __construct(string $routerPath, string $ip = null, int $port = null)
     {
-        if (!is_file($routerPath)) {
-            throw new \Exception('Router file does not exist: "'.$routerPath.'"');
+        if (!is_file($routerPath))
+        {
+            throw new \Exception('Router file does not exist: "' . $routerPath . '"');
         }
         $this->routerPath = realpath($routerPath);
 
-        $this->ip = ($ip ?? strval(MockServerConfig::MOCKSERVER_IP));
-        $this->port = ($port ?? strval(MockServerConfig::MOCKSERVER_PORT));
+        $this->ip     = ($ip ?? MockServerConfig::MOCKSERVER_IP);
+        $this->port   = ($port ?? MockServerConfig::MOCKSERVER_PORT);
         $this->tmpDir = $this->getTempDirectory();
     }
 
@@ -49,12 +50,14 @@ class MockServer
     public static function getTempDirectory(): string
     {
         $dir = sys_get_temp_dir() ?: '/tmp';
-        if (!is_dir($dir) || !is_writable($dir)) {
+        if (!is_dir($dir) || !is_writable($dir))
+        {
             throw new \Exception('Could not find the tmp directory');
         }
 
-        $dir = $dir.DIRECTORY_SEPARATOR.'MWS';
-        if (!is_dir($dir)) {
+        $dir = $dir . DIRECTORY_SEPARATOR . 'MWS';
+        if (!is_dir($dir))
+        {
             mkdir($dir);
         }
 
@@ -68,7 +71,8 @@ class MockServer
     public function getRequest(): MockServerRequest
     {
         $path = $this->getRequestPath();
-        if (!is_file($this->getRequestPath())) {
+        if (!is_file($this->getRequestPath()))
+        {
             throw new \Exception('Could not retrieve request, no request has been made yet');
         }
 
@@ -82,7 +86,7 @@ class MockServer
     protected function getRequestPath(): string
     {
         $tempDirectory = $this->getTempDirectory();
-        return $tempDirectory.DIRECTORY_SEPARATOR.'request.json';
+        return $tempDirectory . DIRECTORY_SEPARATOR . 'request.json';
     }
 
     /**
@@ -95,19 +99,21 @@ class MockServer
     {
         //Get the configuration
         $path = $this->routerPath;
-        $ip = $this->ip;
+        $ip   = $this->ip;
         $port = $this->port;
 
         //Stop the server if it is already running
-        if ($this->isServerRunning()) {
+        if ($this->isServerRunning())
+        {
             $this->stopServer();
         }
 
         $this->clearRequest();
 
         //Does the router/directory exist?
-        if (!is_file($path) && !is_dir($path)) {
-            throw new \Exception('The path '.$path.' does not exist');
+        if (!is_file($path) && !is_dir($path))
+        {
+            throw new \Exception('The path ' . $path . ' does not exist');
         }
 
         //Start the server
@@ -123,9 +129,10 @@ class MockServer
 
         //Sleep to allow the web server to start, need to keep this as low as we can to ensure tests don't take forever
         //Maximum attempts to try and connect before we fail out
-        $totalAttempts = 0;
+        $totalAttempts      = 0;
         $maxTimeoutAttempts = 3;
-        do {
+        do
+        {
             //We have to use shell sleep over PHP sleep as there is no reliable way to reduce the time without using usleep
             exec('sleep 0.1');
         } while (!$this->isServerRunning() && $totalAttempts < $maxTimeoutAttempts);
@@ -136,7 +143,7 @@ class MockServer
     public function clearRequest()
     {
         $requestPath = $this->getRequestPath();
-        if(file_exists($requestPath))
+        if (file_exists($requestPath))
         {
             unlink($requestPath);
         }
@@ -150,9 +157,11 @@ class MockServer
      */
     public function isServerRunning(): bool
     {
-        try {
+        try
+        {
             $pid = $this->getServerPID();
-        } catch (\Exception $e) {
+        } catch (\Exception $e)
+        {
             return false;
         }
 
@@ -173,17 +182,20 @@ class MockServer
 
         exec($command, $output, $exitCode);
 
-        if (count($output) > 1) {
+        if (count($output) > 1)
+        {
             throw new \Exception('Found multiple instances of the PHP server');
         }
 
-        if (count($output) == 0) {
+        if (count($output) == 0)
+        {
             throw new \Exception('No instances of PHP server are running');
         }
 
         $pid = trim(array_shift($output));
 
-        if (is_numeric($pid)) {
+        if (is_numeric($pid))
+        {
             return intval($pid);
         }
 
@@ -195,9 +207,11 @@ class MockServer
      */
     public function stopServer(): bool
     {
-        try {
+        try
+        {
             $pid = $this->getServerPID();
-        } catch (\Exception $e) {
+        } catch (\Exception $e)
+        {
             return false;
         }
 
@@ -209,7 +223,7 @@ class MockServer
 
     protected function getBaseUrl(): string
     {
-        $serverIp = MockServerConfig::MOCKSERVER_IP;
+        $serverIp   = MockServerConfig::MOCKSERVER_IP;
         $serverPort = MockServerConfig::MOCKSERVER_PORT;
 
         return sprintf('http://%s:%d', $serverIp, $serverPort);
@@ -217,6 +231,6 @@ class MockServer
 
     public function getUrl($uri): string
     {
-        return $this->getBaseUrl().$uri;
+        return $this->getBaseUrl() . $uri;
     }
 }

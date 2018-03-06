@@ -157,9 +157,10 @@ class StaticRouter
         }
 
         $responseBody = $route['response'].$callbackResult;
-        $response = new Response($responseBody);
 
-        return $response;
+        //TODO: Need to dump a response object on the file system alongside the request
+
+        return new Response($responseBody);
     }
 
     /**
@@ -177,5 +178,13 @@ class StaticRouter
         if (file_put_contents($requestPath, json_encode($output)) === false) {
             throw new Exception('Could not write request output to '.$requestPath);
         }
+    }
+
+    protected function logResponse(Response $response)
+    {
+        $responsePath = MockServer::getTempDirectory().'/response.json';
+        $output = $response->getContent();
+
+
     }
 }

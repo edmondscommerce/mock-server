@@ -1,35 +1,35 @@
 {
-  "name": "edmondscommerce/mock-server",
-  "description": "...",
-  "license": "MIT",
-  "autoload": {
-    "psr-4": {
-      "EdmondsCommerce\\MockServer\\": [
-        "src/"
-      ]
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "EdmondsCommerce\\MockServer\\": [
-        "tests/"
-      ]
-    }
-  },
-  "config": {
-    "bin-dir": "bin",
-    "preferred-install": {
-      "edmondscommerce/*": "source",
-      "*": "dist"
+    "name": "edmondscommerce/mock-server",
+    "description": "...",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "EdmondsCommerce\\MockServer\\": [
+                "src/"
+            ]
+        }
     },
-    "optimize-autoloader": true
-  },
-  "require": {
-    "symfony/http-foundation": "^3.4",
-    "symfony/routing": "^3.4"
-  },
-  "require-dev": {
-    "edmondscommerce/phpqa": "^0.0.1",
-    "guzzle/guzzle": "^3.9"
-  }
+    "autoload-dev": {
+        "psr-4": {
+            "EdmondsCommerce\\MockServer\\": [
+                "tests/"
+            ]
+        }
+    },
+    "config": {
+        "bin-dir": "bin",
+        "preferred-install": {
+            "edmondscommerce/*": "source",
+            "*": "dist"
+        },
+        "optimize-autoloader": true
+    },
+    "require": {
+        "symfony/http-foundation": "^3.4",
+        "symfony/routing": "^3.4"
+    },
+    "require-dev": {
+        "edmondscommerce/phpqa": "^0.0.1",
+        "guzzle/guzzle": "^3.9"
+    }
 }
