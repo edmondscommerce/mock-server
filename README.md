@@ -1,4 +1,11 @@
 # Mock Web Server and Router 
+## By [Edmonds Commerce](https://www.edmondscommerce.co.uk)
+
+## Installation
+
+Install via composer
+
+`composer require edmondscommerce/mock-server:dev-master@dev --dev`
 
 ## Usage
 To start the web server, you need to call instantiate the `\EdmondsCommerce\MockServer\MockServer` and pass in 
