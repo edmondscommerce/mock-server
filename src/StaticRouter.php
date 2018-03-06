@@ -146,7 +146,6 @@ class StaticRouter
 
         try {
             $route = $this->matchRoute($requestUri);
-
         } catch (NoConfigurationException $e) {
             return $this->respondNotFound();
         } catch (RouterException $exception) {

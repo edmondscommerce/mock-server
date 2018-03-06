@@ -31,8 +31,7 @@ class MockServer
      */
     public function __construct(string $routerPath, string $ipAddress = null, int $port = null)
     {
-        if (!is_file($routerPath))
-        {
+        if (!is_file($routerPath)) {
             throw new \Exception('Router file does not exist: "' . $routerPath . '"');
         }
         $this->routerPath = realpath($routerPath);
@@ -51,14 +50,12 @@ class MockServer
     public static function getTempDirectory(): string
     {
         $dir = sys_get_temp_dir() ?: '/tmp';
-        if (!is_dir($dir) || !is_writable($dir))
-        {
+        if (!is_dir($dir) || !is_writable($dir)) {
             throw new \Exception('Could not find the tmp directory');
         }
 
         $dir = $dir . DIRECTORY_SEPARATOR . 'MWS';
-        if (!is_dir($dir))
-        {
+        if (!is_dir($dir)) {
             mkdir($dir);
         }
 
@@ -72,8 +69,7 @@ class MockServer
     public function getRequest(): MockServerRequest
     {
         $path = $this->getRequestPath();
-        if (!is_file($this->getRequestPath()))
-        {
+        if (!is_file($this->getRequestPath())) {
             throw new \Exception('Could not retrieve request, no request has been made yet');
         }
 
@@ -105,16 +101,14 @@ class MockServer
         $port = $this->port;
 
         //Stop the server if it is already running
-        if ($this->isServerRunning())
-        {
+        if ($this->isServerRunning()) {
             $this->stopServer();
         }
 
         $this->clearRequest();
 
         //Does the router/directory exist?
-        if (!is_file($path) && !is_dir($path))
-        {
+        if (!is_file($path) && !is_dir($path)) {
             throw new \Exception('The path ' . $path . ' does not exist');
         }
 
@@ -133,9 +127,8 @@ class MockServer
         //Maximum attempts to try and connect before we fail out
         $totalAttempts      = 0;
         $maxTimeoutAttempts = 3;
-        do
-        {
-            //We have to use shell sleep over PHP sleep as there is no reliable way to reduce the time without using usleep
+        do {
+            //We have to use shell sleep over PHP as there is no reliable way to reduce the time without using usleep
             exec('sleep 0.1');
         } while (!$this->isServerRunning() && $totalAttempts < $maxTimeoutAttempts);
 
@@ -145,8 +138,7 @@ class MockServer
     public function clearRequest()
     {
         $requestPath = $this->getRequestPath();
-        if (file_exists($requestPath))
-        {
+        if (file_exists($requestPath)) {
             unlink($requestPath);
         }
     }
@@ -159,11 +151,9 @@ class MockServer
      */
     public function isServerRunning(): bool
     {
-        try
-        {
+        try {
             $this->getServerPID();
-        } catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             return false;
         }
 
@@ -180,25 +170,22 @@ class MockServer
     public function getServerPID(): int
     {
         //-x Preg matches only on exact names instead of partial match
-        //-f Matches against the process name AND the arguments which is how we denote the web server from other PHP processes
+        //-f Matches against the process name AND the arguments for us to denote the web server from other PHP processes
         $command = 'pgrep -f "php -S"';
 
         exec($command, $commandOutput, $exitCode);
 
-        if (count($commandOutput) > 1)
-        {
+        if (count($commandOutput) > 1) {
             throw new \Exception('Found multiple instances of the PHP server');
         }
 
-        if (count($commandOutput) == 0)
-        {
+        if (count($commandOutput) == 0) {
             throw new \Exception('No instances of PHP server are running');
         }
 
         $pid = trim(array_shift($commandOutput));
 
-        if (is_numeric($pid))
-        {
+        if (is_numeric($pid)) {
             return intval($pid);
         }
 
@@ -211,11 +198,9 @@ class MockServer
      */
     public function stopServer(): bool
     {
-        try
-        {
+        try {
             $pid = $this->getServerPID();
-        } catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             return false;
         }
 

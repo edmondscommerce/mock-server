@@ -114,5 +114,4 @@ class MockServerTest extends TestCase
         $this->server->startServer();
         $this->server->getRequest();
     }
-
 }

@@ -3,7 +3,6 @@
 
 namespace EdmondsCommerce\MockServer\Exception;
 
-
 class RouterException extends MockServerException
 {
 

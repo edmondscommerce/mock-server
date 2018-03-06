@@ -73,8 +73,7 @@ class StaticRouterTest extends TestCase
     {
         $_SERVER['REQUEST_URI'] = '/some-callback';
 
-        $this->router->addCallbackRoute('/some-callback', '', function()
-        {
+        $this->router->addCallbackRoute('/some-callback', '', function () {
             return 'This is a callback result';
         });
 
