@@ -4,7 +4,7 @@ namespace EdmondsCommerce\MockServer;
 
 class MockServerConfig
 {
-    const MOCKSERVER_IP = '127.0.0.1';
+    const MOCKSERVER_IP = '0.0.0.0';
 
     const MOCKSERVER_PORT = 8080;
 }
