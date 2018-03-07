@@ -32,13 +32,13 @@ class MockServer
     public function __construct(string $routerPath, string $ipAddress = null, int $port = null)
     {
         if (!is_file($routerPath)) {
-            throw new \Exception('Router file does not exist: "' . $routerPath . '"');
+            throw new \RuntimeException('Router file does not exist: "' . $routerPath . '"');
         }
         $this->routerPath = realpath($routerPath);
 
         $this->ipAddress     = ($ipAddress ?? MockServerConfig::MOCKSERVER_IP);
         $this->port   = ($port ?? MockServerConfig::MOCKSERVER_PORT);
-        $this->tmpDir = $this->getTempDirectory();
+        $this->tmpDir = static::getTempDirectory();
     }
 
     /**
@@ -51,12 +51,12 @@ class MockServer
     {
         $dir = sys_get_temp_dir() ?: '/tmp';
         if (!is_dir($dir) || !is_writable($dir)) {
-            throw new \Exception('Could not find the tmp directory');
+            throw new \RuntimeException('Could not find the tmp directory');
         }
 
         $dir = $dir . DIRECTORY_SEPARATOR . 'MWS';
-        if (!is_dir($dir)) {
-            mkdir($dir);
+        if (!is_dir($dir) && !mkdir($dir) && !is_dir($dir)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
         }
 
         return $dir;
@@ -70,7 +70,7 @@ class MockServer
     {
         $path = $this->getRequestPath();
         if (!is_file($this->getRequestPath())) {
-            throw new \Exception('Could not retrieve request, no request has been made yet');
+            throw new \RuntimeException('Could not retrieve request, no request has been made yet');
         }
 
         return new MockServerRequest($path);
@@ -82,7 +82,7 @@ class MockServer
      */
     protected function getRequestPath(): string
     {
-        $tempDirectory = $this->getTempDirectory();
+        $tempDirectory = $this->tmpDir;
         return $tempDirectory . DIRECTORY_SEPARATOR . 'request.json';
     }
 
@@ -109,7 +109,7 @@ class MockServer
 
         //Does the router/directory exist?
         if (!is_file($path) && !is_dir($path)) {
-            throw new \Exception('The path ' . $path . ' does not exist');
+            throw new \RuntimeException('The path ' . $path . ' does not exist');
         }
 
         //Start the server
@@ -132,9 +132,12 @@ class MockServer
             exec('sleep 0.1');
         } while (!$this->isServerRunning() && $totalAttempts < $maxTimeoutAttempts);
 
-        return ($exitCode == 0);
+        return ($exitCode === 0);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function clearRequest()
     {
         $requestPath = $this->getRequestPath();
@@ -176,20 +179,20 @@ class MockServer
         exec($command, $commandOutput, $exitCode);
 
         if (count($commandOutput) > 1) {
-            throw new \Exception('Found multiple instances of the PHP server');
+            throw new \RuntimeException('Found multiple instances of the PHP server');
         }
 
-        if (count($commandOutput) == 0) {
-            throw new \Exception('No instances of PHP server are running');
+        if (count($commandOutput) === 0) {
+            throw new \RuntimeException('No instances of PHP server are running');
         }
 
         $pid = trim(array_shift($commandOutput));
 
         if (is_numeric($pid)) {
-            return intval($pid);
+            return (int)$pid;
         }
 
-        throw new \Exception('Could not find PID for PHP Server');
+        throw new \RuntimeException('Could not find PID for PHP Server');
     }
 
     /**
@@ -200,14 +203,13 @@ class MockServer
     {
         try {
             $pid = $this->getServerPID();
+            $command = sprintf('kill %d', $pid);
+            exec($command, $output, $resultCode);
+
+            return ($resultCode === 0);
         } catch (\Exception $e) {
             return false;
         }
-
-        $command = sprintf('kill %d', $pid);
-        exec($command, $output, $resultCode);
-
-        return ($resultCode == 0);
     }
 
     protected function getBaseUrl(): string
