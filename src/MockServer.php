@@ -174,7 +174,7 @@ class MockServer
     {
         //-x Preg matches only on exact names instead of partial match
         //-f Matches against the process name AND the arguments for us to denote the web server from other PHP processes
-        $command = 'pgrep -u "$(whoami)" -f "php -S"';
+        $command = 'pgrep -u "$(whoami),root" -f "php -S"';
 
         exec($command, $commandOutput, $exitCode);
 
