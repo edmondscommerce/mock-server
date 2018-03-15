@@ -133,8 +133,7 @@ class MockServer
         $totalAttempts      = 0;
         $maxTimeoutAttempts = 5;
         do {
-            //We have to use shell sleep over PHP as there is no reliable way to reduce the time without using usleep
-            exec('sleep 0.1');
+            usleep(100000); // 0.1s
         } while (!$this->isServerRunning() && $totalAttempts++ < $maxTimeoutAttempts);
 
         return ($exitCode === 0);
