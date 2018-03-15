@@ -41,6 +41,11 @@ class MockServer
         $this->tmpDir = static::getTempDirectory();
     }
 
+    public function __destruct()
+    {
+        $this->stopServer();
+    }
+
     /**
      * Sets up a temporary file and returns the path to it
      *
@@ -126,11 +131,11 @@ class MockServer
         //Sleep to allow the web server to start, need to keep this as low as we can to ensure tests don't take forever
         //Maximum attempts to try and connect before we fail out
         $totalAttempts      = 0;
-        $maxTimeoutAttempts = 3;
+        $maxTimeoutAttempts = 5;
         do {
             //We have to use shell sleep over PHP as there is no reliable way to reduce the time without using usleep
             exec('sleep 0.1');
-        } while (!$this->isServerRunning() && $totalAttempts < $maxTimeoutAttempts);
+        } while (!$this->isServerRunning() && $totalAttempts++ < $maxTimeoutAttempts);
 
         return ($exitCode === 0);
     }
