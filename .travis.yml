@@ -1,21 +1,16 @@
-# see http://about.travis-ci.org/docs/user/languages/php/ for more hints
 language: php
-
-# We need to be able to reclone the repo so it can't be shallow
 git:
   depth: false
-
-
 php:
-  - 7.0
-  - 7.1
-  - 7.2
-  - hhvm
-
+- 7.0
+- 7.1
+- 7.2
+- hhvm
 matrix:
   allow_failures:
-    - php: hhvm
-
+  - php: hhvm
 before_script: bash -x .travis.bash
-
 script: phpUnitQuickTests=0 ./bin/qa
+notifications:
+  slack:
+    secure: P3Qg8ZdzbhCpeJUc12zPMHwTqN+oVwU3ApT6t5d5gXqlaDXqvmqfa2BQcMYRRoC192AwtK87HAYLqn/5ajk5JcsSNqmIVVJ8JT/guV8pPl2m3R3ghnEjlEyYiFvzfAoV7VbQqs/7tZCPxg97ewKY3pMVzCxvUaZFRmvU9tkjAdRHSCaDrtX3Uj2Va53zwBrwURXQUYSp+eD16qT+V7zPwmy+vWZclDuCjQsbBnxfy11TQoDPe5pBOZRMc69ZatEMWO/yiVFmBdcrPSkGJJ0Hr6yaAm0nHnWhFolJMHuLWGAfperrz39/SJgRDZYsu1b5eFaTo87Mzo5caD5WkBRu2Jsbry9htdrD0TqNfXdp6WrB58nX/G7CXLTD4RUQAlPT4fYMTW46JoZqn9YRPdzW1ULFTbsB/UgV1m1jUFJ5XIYHTCGQ/Hu1siT+ItImrLhISu3TBxt1Xchg3Lqxp/mAWOryXCqQdCc8bPJoLam5T3poyGFrtJD07QbovAGn8QoIrY786raA4l3qL18k1KVLTLdhSq2LEYf3A87Ipf+RWABy9WsJMJgCaX6l7wc07Nuq9VtThpTSicKhQyzz9/8KzpjHA8AmXgaj6KQaMdqaycXK83SkQiNujtEIFflZIBMhH/cC7yxAaKwkM46e8VYlMSNtC5qtT9jg1D2fbu6Tx/k=
