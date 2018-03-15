@@ -166,7 +166,6 @@ class MockServer
     /**
      * Gets the PHP server's PID
      *
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      * @return int
      * @throws \Exception
      */
@@ -177,6 +176,10 @@ class MockServer
         $command = 'pgrep -u "$(whoami),root" -f "php -S"';
 
         exec($command, $commandOutput, $exitCode);
+
+        if ($exitCode !== 0) {
+            throw new \RuntimeException('Unsuccessful exit code returned: '.$exitCode);
+        }
 
         if (count($commandOutput) > 1) {
             throw new \RuntimeException('Found multiple instances of the PHP server');
