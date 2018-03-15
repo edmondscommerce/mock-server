@@ -217,10 +217,7 @@ class MockServer
 
     protected function getBaseUrl(): string
     {
-        $serverIp   = MockServerConfig::MOCKSERVER_IP;
-        $serverPort = MockServerConfig::MOCKSERVER_PORT;
-
-        return sprintf('http://%s:%d', $serverIp, $serverPort);
+        return sprintf('http://%s:%d', $this->ipAddress, $this->port);
     }
 
     public function getUrl($uri): string
