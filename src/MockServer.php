@@ -157,7 +157,7 @@ class MockServer
         try {
             $this->getServerPID();
         } catch (\Exception $e) {
-            return false;
+            echo $e->getMessage();
         }
 
         return true;
