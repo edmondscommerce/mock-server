@@ -126,7 +126,7 @@ class MockServer
         //Sleep to allow the web server to start, need to keep this as low as we can to ensure tests don't take forever
         //Maximum attempts to try and connect before we fail out
         $totalAttempts      = 0;
-        $maxTimeoutAttempts = 10;
+        $maxTimeoutAttempts = 3;
         do {
             //We have to use shell sleep over PHP as there is no reliable way to reduce the time without using usleep
             exec('sleep 0.1');
@@ -157,7 +157,7 @@ class MockServer
         try {
             $this->getServerPID();
         } catch (\Exception $e) {
-            echo $e->getMessage();
+            return false;
         }
 
         return true;
