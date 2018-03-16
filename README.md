@@ -23,3 +23,25 @@ The router supports static file routes, callback routes and text routes.
 
 The router also handles dumping request and response data to `tmp` so that it is possible to retrieve what was sent
 when running tests via the `MockServer`. 
+
+## Router Types
+
+### Callback
+
+The callback router sets a function which will be called. The return of the function should be text, or a redirect etc.
+
+See [this test](./tests/StaticRouterTest.php#L72) for an exmaple of a callback.
+
+### Text
+
+Second param of `addRuote($uri, $response)` is the text that will be returned after visiting specified uri.
+
+See [this test](./tests/StaticRouterTest.php#L40) for an example of text route.
+
+### Static 
+
+Second param of `addStaticRuote($uri, $response)` is the the file content that will be returned after visiting specified uri.
+
+
+
+
