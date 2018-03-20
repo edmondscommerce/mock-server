@@ -24,6 +24,14 @@ The router supports static file routes, callback routes and text routes.
 The router also handles dumping request and response data to `tmp` so that it is possible to retrieve what was sent
 when running tests via the `MockServer`. 
 
+### Starting the server manually
+
+To start the server in the background manually, copy line below into your terminal.
+
+```
+nohup php -S {container-ip}:8080 /var/www/vhosts/module/tests/assets/routers/somerouter.php > /dev/null 2>/dev/null &
+```
+
 ## Router Types
 
 ### Callback
