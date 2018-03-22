@@ -34,6 +34,20 @@ nohup php -S {container-ip}:8080 /var/www/vhosts/module/tests/assets/routers/som
 
 ## Router Types
 
+### Static Files (css/js/etc...)
+
+In your [router.php](tests/assets/MockServerTest/router.php) don't forget to add snippet below so that static files
+would be outputted without problems.
+
+```php
+/**
+ * Make sure to add this bit, to serve all the specified extensions without creating a route for them
+ */
+if (preg_match('/\.(?:png|css|jpg|jpeg|gif|js)$/', $_SERVER["REQUEST_URI"])) {
+    return false;    // serve the requested resource as-is.
+}
+```
+
 ### Callback
 
 The callback router sets a function which will be called. The return of the function should be text, or a redirect etc.

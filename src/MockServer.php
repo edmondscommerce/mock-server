@@ -19,6 +19,8 @@ class MockServer
      */
     private $port;
 
+    private $httpdocsPath;
+
 
     /**
      * MockServer constructor.
@@ -29,13 +31,14 @@ class MockServer
      * @param int $port
      * @throws \Exception
      */
-    public function __construct(string $routerPath, string $ipAddress = null, int $port = null)
+    public function __construct(string $routerPath, string $httpdocsPath = '', string $ipAddress = null, int $port = null)
     {
         if (!is_file($routerPath)) {
             throw new \RuntimeException('Router file does not exist: "' . $routerPath . '"');
         }
         $this->routerPath = realpath($routerPath);
 
+        $this->httpdocsPath = $httpdocsPath ?: dirname($this->routerPath);
         $this->ipAddress     = ($ipAddress ?? MockServerConfig::MOCKSERVER_IP);
         $this->port   = ($port ?? MockServerConfig::MOCKSERVER_PORT);
         $this->tmpDir = static::getTempDirectory();
@@ -100,11 +103,6 @@ class MockServer
      */
     public function startServer(): bool
     {
-        //Get the configuration
-        $path = $this->routerPath;
-        $ipAddress   = $this->ipAddress;
-        $port = $this->port;
-
         //Stop the server if it is already running
         if ($this->isServerRunning()) {
             $this->stopServer();
@@ -113,17 +111,18 @@ class MockServer
         $this->clearRequest();
 
         //Does the router/directory exist?
-        if (!is_file($path) && !is_dir($path)) {
-            throw new \RuntimeException('The path ' . $path . ' does not exist');
+        if (!is_file($this->routerPath) && !is_dir($this->routerPath)) {
+            throw new \RuntimeException('The path ' . $this->routerPath . ' does not exist');
         }
 
         //Start the server
         //The -t denotes a base directory, we do a check on the path given to see if we are working with a router or not
         $commandToExecute = sprintf(
-            'nohup php -S %s:%d %s > /dev/null 2>/dev/null &',
-            $ipAddress,
-            $port,
-            $path
+            'cd %s; nohup php -S %s:%d %s > /dev/null 2>/dev/null &',
+            $this->httpdocsPath,
+            $this->ipAddress,
+            $this->port,
+            $this->routerPath
         );
 
         exec($commandToExecute, $commandOutput, $exitCode);
