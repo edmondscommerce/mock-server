@@ -2,9 +2,8 @@
 
 namespace EdmondsCommerce\MockServer;
 
-use Closure;
+
 use EdmondsCommerce\MockServer\Exception\RouterException;
-use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\NoConfigurationException;
@@ -14,6 +13,12 @@ use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
+/**
+ * Class StaticRouter
+ *
+ * @package EdmondsCommerce\MockServer
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class StaticRouter
 {
     /**
@@ -22,7 +27,7 @@ class StaticRouter
     private $routes;
 
     /**
-     * @var Closure[]
+     * @var \Closure[]
      */
     private $callbacks = [];
 
@@ -38,6 +43,7 @@ class StaticRouter
 
     /**
      * @param string $response
+     *
      * @return StaticRouter
      */
     public function setNotFound(string $response): StaticRouter
@@ -49,13 +55,14 @@ class StaticRouter
 
     /**
      * @param string $file
+     *
      * @return StaticRouter
-     * @throws Exception
+     * @throws \RunTimeException
      */
     public function setNotFoundStatic(string $file): StaticRouter
     {
         if (!file_exists($file)) {
-            throw new \Exception('Could not find 404 file: '.$file);
+            throw new \RuntimeException('Could not find 404 file: '.$file);
         }
 
         return $this->setNotFound(file_get_contents($file));
@@ -64,13 +71,14 @@ class StaticRouter
     /**
      * @param string $uri
      * @param string $fileResponse
+     *
      * @return StaticRouter
-     * @throws Exception
+     * @throws \RuntimeException
      */
     public function addStaticRoute(string $uri, string $fileResponse): StaticRouter
     {
         if (!file_exists($fileResponse)) {
-            throw new \Exception('Could not find file '.$fileResponse);
+            throw new \RuntimeException('Could not find file '.$fileResponse);
         }
 
         return $this->addRoute($uri, file_get_contents($fileResponse));
@@ -88,6 +96,7 @@ class StaticRouter
      * @param string $uri
      * @param string $response
      * @param array  $defaults
+     *
      * @return StaticRouter
      */
     public function addRoute(string $uri, string $response, array $defaults = []): StaticRouter
@@ -100,8 +109,9 @@ class StaticRouter
     /**
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @param string $requestUri
+     *
      * @return array
-     * @throws Exception
+     * @throws \EdmondsCommerce\MockServer\Exception\RouterException
      */
     public function matchRoute(string $requestUri): array
     {
@@ -117,6 +127,7 @@ class StaticRouter
     }
 
     /**
+     * @throws \InvalidArgumentException
      * @throws RouterException
      */
     public function respondNotFound(): Response
@@ -132,8 +143,11 @@ class StaticRouter
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @SuppressWarnings(PHPMD.Superglobals)
      * @param string $requestUri
+     *
      * @return Response
-     * @throws Exception
+     * @throws \Exception
+     * @throws \InvalidArgumentException
+     * @throws RouterException
      */
     public function run(string $requestUri = null): Response
     {
@@ -168,34 +182,35 @@ class StaticRouter
     /**
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @param Request $request
-     * @throws Exception
+     *
+     * @throws \Exception
      */
     protected function logRequest(Request $request)
     {
         $requestPath = MockServer::getTempDirectory().'/request.json';
-        $output = [
+        $output      = [
             'post' => $request->request->all(),
             'get'  => $request->query->all(),
         ];
 
         if (file_put_contents($requestPath, json_encode($output)) === false) {
-            throw new Exception('Could not write request output to '.$requestPath);
+            throw new \RuntimeException('Could not write request output to '.$requestPath);
         }
     }
 
     /**
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @param Response $response
-     * @throws Exception
+     *
+     * @throws \Exception
      */
-
     protected function logResponse(Response $response)
     {
         $responsePath = MockServer::getTempDirectory().'/response.json';
-        $output = $response->getContent();
+        $output       = $response->getContent();
 
         if (file_put_contents($responsePath, json_encode($output)) === false) {
-            throw new Exception('Could not write response output to '.$responsePath);
+            throw new \RuntimeException('Could not write response output to '.$responsePath);
         }
     }
 }

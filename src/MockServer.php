@@ -27,8 +27,10 @@ class MockServer
      *
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @param string $routerPath
+     * @param string $httpdocsPath
      * @param string $ipAddress
-     * @param int $port
+     * @param int    $port
+     *
      * @throws \Exception
      */
     public function __construct(
@@ -42,7 +44,7 @@ class MockServer
         }
         $this->routerPath = realpath($routerPath);
 
-        $this->httpdocsPath = $httpdocsPath ?: dirname($this->routerPath);
+        $this->httpdocsPath = $httpdocsPath ?: \dirname($this->routerPath);
         $this->ipAddress     = ($ipAddress ?? MockServerConfig::MOCKSERVER_IP);
         $this->port   = ($port ?? MockServerConfig::MOCKSERVER_PORT);
         $this->tmpDir = static::getTempDirectory();

@@ -26,12 +26,13 @@ class MockServerRequest
      * MockServerRequest constructor.
      *
      * @param string $requestFile
+     *
      * @throws \Exception
      */
     public function __construct(string $requestFile)
     {
         if (!is_file($requestFile)) {
-            throw new \Exception('Could not find response file to parse');
+            throw new \RuntimeException('Could not find response file to parse');
         }
 
         $data = file_get_contents($requestFile);
@@ -39,7 +40,7 @@ class MockServerRequest
         //Parse the Json file
         $data = json_decode($data, true);
         if ($data === null) {
-            throw new \Exception('Could not read the request file: '. $requestFile);
+            throw new \RuntimeException('Could not read the request file: '.$requestFile);
         }
 
         $this->get = new ParameterBag($data['get'] ?? []);
