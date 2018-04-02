@@ -25,9 +25,9 @@
     "optimize-autoloader": true
   },
   "require": {
-    "php": "~7",
-    "symfony/http-foundation": "^3.4",
-    "symfony/routing": "^3.4"
+    "php": "~7.1",
+    "symfony/http-foundation": "~4",
+    "symfony/routing": "~4"
   },
   "require-dev": {
     "edmondscommerce/phpqa": "dev-master@dev",
