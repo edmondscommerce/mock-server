@@ -2,7 +2,6 @@
 
 namespace EdmondsCommerce\MockServer;
 
-
 use EdmondsCommerce\MockServer\Exception\RouterException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -84,7 +83,7 @@ class StaticRouter
         return $this->addRoute($uri, file_get_contents($fileResponse));
     }
 
-    public function addCallbackRoute(string $uri, string $response, Closure $closure)
+    public function addCallbackRoute(string $uri, string $response, \Closure $closure)
     {
         $this->addRoute($uri, $response);
         $this->callbacks[$uri] = $closure;
