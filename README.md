@@ -5,9 +5,18 @@
 
 ## Installation
 
+### PHP 7.0
+
 Install via composer
 
-`composer require edmondscommerce/mock-server:dev-master@dev --dev`
+`composer require edmondscommerce/mock-server:~1 --dev`
+
+### PHP 7.1+
+
+Install via composer
+
+`composer require edmondscommerce/mock-server:~2 --dev`
+
 
 ## Usage
 To start the web server, you need to call instantiate the `\EdmondsCommerce\MockServer\MockServer` and pass in 
