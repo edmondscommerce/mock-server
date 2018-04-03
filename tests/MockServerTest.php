@@ -60,5 +60,4 @@ class MockServerTest extends TestCase
         $contents = file_get_contents($requestFile);
         $this->assertEmpty($contents, 'request file contains: '.$contents);
     }
-
 }

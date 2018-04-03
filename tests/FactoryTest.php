@@ -57,5 +57,4 @@ class FactoryTest extends TestCase
         $mockServer->startServer();
         Factory::getLastRequest();
     }
-
 }

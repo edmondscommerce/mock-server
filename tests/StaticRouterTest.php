@@ -101,5 +101,4 @@ class StaticRouterTest extends TestCase
 
         $this->assertFileExists($logDir.'/'.MockServer::REQUEST_FILE);
     }
-
 }

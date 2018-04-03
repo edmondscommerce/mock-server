@@ -35,4 +35,3 @@ $router = \EdmondsCommerce\MockServer\Factory::getStaticRouter();
  *
  * @var \EdmondsCommerce\MockServer\StaticRouter $router
  */
-

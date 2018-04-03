@@ -88,8 +88,7 @@ class MockServer
             return self::$logsPath;
         }
         self::$logsPath = MockServerConfig::getLogsPath();
-        if (
-            !is_dir(self::$logsPath)
+        if (!is_dir(self::$logsPath)
             && !(mkdir(self::$logsPath, 0777, true) && is_dir(self::$logsPath))
         ) {
             throw new \RuntimeException(sprintf('Directory "%s" was not created', self::$logsPath));
@@ -122,7 +121,6 @@ class MockServer
                .' -d error_log="'.$logFilePath.'"'
                .' -S '.$this->ipAddress.':'.$this->port.' '.$this->routerPath
                .$detatch;
-
     }
 
 

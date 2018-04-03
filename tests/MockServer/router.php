@@ -16,6 +16,3 @@ $router->addRoute('/admin', 'Admin Login');
 
 
 require __DIR__.'/../../src/include/routerBottom.php';
-
-
-

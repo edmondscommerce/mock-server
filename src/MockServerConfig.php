@@ -67,6 +67,5 @@ class MockServerConfig
         } catch (\Exception $e) {
             throw new MockServerException('Exception in '.__METHOD__, $e->getCode(), $e);
         }
-
     }
 }

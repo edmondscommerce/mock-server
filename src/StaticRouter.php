@@ -244,8 +244,7 @@ class StaticRouter
     public function isStaticAsset(Request $request): bool
     {
         $uri = $request->getRequestUri();
-        if (
-            file_exists($this->htdocsPath.'/'.$uri)
+        if (file_exists($this->htdocsPath.'/'.$uri)
             && \in_array(
                 \pathinfo($uri, PATHINFO_EXTENSION),
                 self::STATIC_EXTENSIONS_SUPPORTED,
