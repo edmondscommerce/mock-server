@@ -32,5 +32,9 @@
   "require-dev": {
     "edmondscommerce/phpqa": "dev-master@dev",
     "guzzle/guzzle": "^3.9"
-  }
+  },
+  "bin": [
+    "bin/start-mock-server",
+    "bin/stop-mock-server"
+  ]
 }
