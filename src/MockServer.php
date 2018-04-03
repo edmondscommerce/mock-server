@@ -235,13 +235,12 @@ class MockServer
         if ($pid === 0) {
             return;
         }
-        $command = sprintf('kill %d', $pid);
+        $command = sprintf('kill %d 2>&1', $pid);
         exec($command, $output, $resultCode);
 
         if (0 !== $resultCode) {
             throw new \RuntimeException('Failed stopping server: '.implode("\n", $output));
         }
-
     }
 
     protected function getBaseUrl(): string
