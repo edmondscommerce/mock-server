@@ -210,6 +210,7 @@ class MockServer
 
         if (count($outputArray) > 1) {
             exec('ps $('.$command.')', $psOutput, $psExitCode);
+            $psOutput = implode("\n", $psOutput);
             throw new \RuntimeException('Found multiple instances of the PHP server:'.$output."\nps output:".$psOutput);
         }
 
