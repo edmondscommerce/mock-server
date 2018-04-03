@@ -47,6 +47,21 @@ The router supports static file routes, callback routes and text routes.
 
 **Note -** there are helpful includes [routerTop.php](./src/include/routerTop.php) and [routerBottom.php](./src/include/routerBottom.php) which handle some basic boilerplate for you.
 
+#### Template
+
+Here is a template router for you to start with:
+
+```php
+<?php declare(strict_types=1);
+require __DIR__.'/../../vendor/edmondscommerce/mock-server/src/include/routerTop.php';
+/**
+ * @var \EdmondsCommerce\MockServer\StaticRouter $router
+ */
+
+
+require __DIR__.'/../../vendor/edmondscommerce/mock-server/src/include/routerBottom.php';
+```
+
 ### Starting the server manually
 
 To start the server manually, you can simply use [`./bin/start-mock-server`](./bin/start-mock-server) which will start a backgrounded mock server. If you want it in the foreground, simply pass "foreground" as an argument

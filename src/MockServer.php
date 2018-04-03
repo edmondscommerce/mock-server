@@ -198,31 +198,32 @@ class MockServer
         //-f Matches against the process name AND the arguments for us to denote the web server from other PHP processes
         $command = 'pgrep -u "$(whoami),root" -f "php.*-S"';
 
-        exec($command, $commandOutput, $exitCode);
+        exec($command, $outputArray, $exitCode);
+        $output = implode("\n", $outputArray);
 
-        if ($exitCode !== 0 && count($commandOutput) > 1) {
+        if ($exitCode !== 0 && count($outputArray) > 1) {
             throw new \RuntimeException(
                 'Unsuccessful exit code returned: '.$exitCode.', output: '
-                .implode("\n", $commandOutput)
+                .$outputArray
             );
         }
 
-        if (count($commandOutput) > 1) {
-            throw new \RuntimeException('Found multiple instances of the PHP server');
+        if (count($outputArray) > 1) {
+            throw new \RuntimeException('Found multiple instances of the PHP server:'.$output);
         }
 
         //Not found
-        if ($exitCode === 1 && count($commandOutput) === 0) {
+        if ($exitCode === 1 && count($outputArray) === 0) {
             return 0;
         }
 
-        $pid = trim(array_shift($commandOutput));
+        $pid = trim($output);
 
         if (is_numeric($pid)) {
             return (int)$pid;
         }
 
-        throw new \RuntimeException('Could not find PID for PHP Server');
+        throw new \RuntimeException('Could not find PID for PHP Server: '.$output);
     }
 
     /**
