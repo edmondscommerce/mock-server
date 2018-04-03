@@ -235,7 +235,7 @@ class MockServer
         if ($pid === 0) {
             return;
         }
-        $command = sprintf('kill %d 2>&1', $pid);
+        $command = sprintf('set -x; kill %d 2>&1', $pid);
         exec($command, $output, $resultCode);
 
         if (0 !== $resultCode) {
