@@ -53,8 +53,14 @@ To start the server manually, you can simply use [`./bin/start-mock-server`](./b
 
 ```bash
 ./bin/start-mock-server foreground
-
 ```
+
+If you want the server to listen on a specific IP address, you can do this by exporting a config variable:
+
+```bash
+export MockServer_Ip="0.0.0.0"
+```
+
 
 ## Router Types
 

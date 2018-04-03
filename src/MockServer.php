@@ -175,16 +175,15 @@ class MockServer
      * Checks if the PHP server is running
      *
      * @return bool
+     * @throws \Exception
      */
     public function isServerRunning(): bool
     {
-        try {
-            $this->getServerPID();
-        } catch (\Exception $e) {
-            return false;
-        }
 
-        return true;
+        $pid = $this->getServerPID();
+
+
+        return ($pid > 0);
     }
 
     /**
@@ -197,20 +196,24 @@ class MockServer
     {
         //-x Preg matches only on exact names instead of partial match
         //-f Matches against the process name AND the arguments for us to denote the web server from other PHP processes
-        $command = 'pgrep -u "$(whoami),root" -f "php -S"';
+        $command = 'pgrep -u "$(whoami),root" -f "php.*-S"';
 
         exec($command, $commandOutput, $exitCode);
 
-        if ($exitCode !== 0) {
-            throw new \RuntimeException('Unsuccessful exit code returned: '.$exitCode);
+        if ($exitCode !== 0 && count($commandOutput) > 1) {
+            throw new \RuntimeException(
+                'Unsuccessful exit code returned: '.$exitCode.', output: '
+                .implode("\n", $commandOutput)
+            );
         }
 
         if (count($commandOutput) > 1) {
             throw new \RuntimeException('Found multiple instances of the PHP server');
         }
 
-        if (count($commandOutput) === 0) {
-            throw new \RuntimeException('No instances of PHP server are running');
+        //Not found
+        if ($exitCode === 1 && count($commandOutput) === 0) {
+            return 0;
         }
 
         $pid = trim(array_shift($commandOutput));
@@ -223,20 +226,22 @@ class MockServer
     }
 
     /**
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
-     * @return bool
+     * @throws \Exception
      */
-    public function stopServer(): bool
+    public function stopServer(): void
     {
-        try {
-            $pid     = $this->getServerPID();
-            $command = sprintf('kill %d', $pid);
-            exec($command, $output, $resultCode);
 
-            return ($resultCode === 0);
-        } catch (\Exception $e) {
-            return false;
+        $pid = $this->getServerPID();
+        if ($pid === 0) {
+            return;
         }
+        $command = sprintf('kill %d', $pid);
+        exec($command, $output, $resultCode);
+
+        if (0 !== $resultCode) {
+            throw new \RuntimeException('Failed stopping server: '.implode("\n", $output));
+        }
+
     }
 
     protected function getBaseUrl(): string
