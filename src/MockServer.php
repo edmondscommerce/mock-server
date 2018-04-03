@@ -2,24 +2,42 @@
 
 namespace EdmondsCommerce\MockServer;
 
+/**
+ * Class MockServer
+ *
+ * @package EdmondsCommerce\MockServer
+ * @SuppressWarnings(PHPMD.StaticAccess)
+ */
 class MockServer
 {
-    /** @var string */
-    private $tmpDir;
+    public const LOG_FILE      = 'mockserver.log';
+    public const REQUEST_FILE  = 'request.json';
+    public const RESPONSE_FILE = 'response.json';
+
+    /**
+     * @var string
+     */
+    private static $logsPath;
+
     /**
      * @var string
      */
     private $routerPath;
+
     /**
      * @var string
      */
     private $ipAddress;
+
     /**
      * @var int
      */
     private $port;
 
-    private $httpdocsPath;
+    /**
+     * @var string
+     */
+    private $htdocsPath;
 
 
     /**
@@ -27,7 +45,7 @@ class MockServer
      *
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @param string $routerPath
-     * @param string $httpdocsPath
+     * @param string $htdocsPath
      * @param string $ipAddress
      * @param int    $port
      *
@@ -35,19 +53,22 @@ class MockServer
      */
     public function __construct(
         string $routerPath,
-        string $httpdocsPath = '',
+        string $htdocsPath = '',
         string $ipAddress = null,
         int $port = null
     ) {
         if (!is_file($routerPath)) {
-            throw new \RuntimeException('Router file does not exist: "' . $routerPath . '"');
+            throw new \RuntimeException('Router file does not exist: "'.$routerPath.'"');
         }
         $this->routerPath = realpath($routerPath);
 
-        $this->httpdocsPath = $httpdocsPath ?: \dirname($this->routerPath);
-        $this->ipAddress     = ($ipAddress ?? MockServerConfig::MOCKSERVER_IP);
-        $this->port   = ($port ?? MockServerConfig::MOCKSERVER_PORT);
-        $this->tmpDir = static::getTempDirectory();
+        $this->htdocsPath = $htdocsPath ?: \dirname($this->routerPath);
+        if (!is_dir($this->htdocsPath)) {
+            throw new \RuntimeException('Htdocs folder does not exist: "'.$this->htdocsPath.'"');
+        }
+        $this->ipAddress = ($ipAddress ?? MockServerConfig::DEFAULT_IP);
+        $this->port      = ($port ?? MockServerConfig::DEFAULT_PORT);
+        $this->clearLogs();
     }
 
     public function __destruct()
@@ -61,44 +82,49 @@ class MockServer
      * @return string
      * @throws \Exception
      */
-    public static function getTempDirectory(): string
+    public static function getLogsPath(): string
     {
-        $dir = sys_get_temp_dir() ?: '/tmp';
-        if (!is_dir($dir) || !is_writable($dir)) {
-            throw new \RuntimeException('Could not find the tmp directory');
+        if (null !== self::$logsPath) {
+            return self::$logsPath;
+        }
+        self::$logsPath = MockServerConfig::getLogsPath();
+        if (
+            !is_dir(self::$logsPath)
+            && !(mkdir(self::$logsPath, 0777, true) && is_dir(self::$logsPath))
+        ) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', self::$logsPath));
         }
 
-        $dir = $dir . DIRECTORY_SEPARATOR . 'MWS';
-        if (!is_dir($dir) && !mkdir($dir) && !is_dir($dir)) {
-            throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
-        }
-
-        return $dir;
+        return self::$logsPath;
     }
 
     /**
-     * @return MockServerRequest
-     * @throws \Exception
-     */
-    public function getRequest(): MockServerRequest
-    {
-        $path = $this->getRequestPath();
-        if (!is_file($this->getRequestPath())) {
-            throw new \RuntimeException('Could not retrieve request, no request has been made yet');
-        }
-
-        return new MockServerRequest($path);
-    }
-
-    /**
+     * @param bool $background
+     *
      * @return string
      * @throws \Exception
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    protected function getRequestPath(): string
+    public function getStartCommand(bool $background = true): string
     {
-        $tempDirectory = $this->tmpDir;
-        return $tempDirectory . DIRECTORY_SEPARATOR . 'request.json';
+        $logFilePath = self::getLogsPath().'/'.self::LOG_FILE;
+        $nohup       = '';
+        $detatch     = '';
+        if (true === $background) {
+            $nohup   = 'nohup';
+            $detatch = '> '.$logFilePath.' 2>&1 &';
+        }
+
+        return 'cd '.$this->htdocsPath.';'
+               .$nohup
+               .' php '
+               .' -d error_reporting=E_ALL'
+               .' -d error_log="'.$logFilePath.'"'
+               .' -S '.$this->ipAddress.':'.$this->port.' '.$this->routerPath
+               .$detatch;
+
     }
+
 
     /**
      * Start the mock web server
@@ -113,25 +139,11 @@ class MockServer
         if ($this->isServerRunning()) {
             $this->stopServer();
         }
+        $this->clearLogs();
 
-        $this->clearRequest();
+        $startCommand = $this->getStartCommand();
 
-        //Does the router/directory exist?
-        if (!is_file($this->routerPath) && !is_dir($this->routerPath)) {
-            throw new \RuntimeException('The path ' . $this->routerPath . ' does not exist');
-        }
-
-        //Start the server
-        //The -t denotes a base directory, we do a check on the path given to see if we are working with a router or not
-        $commandToExecute = sprintf(
-            'cd %s; nohup php -S %s:%d %s > /dev/null 2>/dev/null &',
-            $this->httpdocsPath,
-            $this->ipAddress,
-            $this->port,
-            $this->routerPath
-        );
-
-        exec($commandToExecute, $commandOutput, $exitCode);
+        exec($startCommand, $commandOutput, $exitCode);
 
         //Sleep to allow the web server to start, need to keep this as low as we can to ensure tests don't take forever
         //Maximum attempts to try and connect before we fail out
@@ -147,11 +159,16 @@ class MockServer
     /**
      * @throws \Exception
      */
-    public function clearRequest()
+    public function clearLogs(): void
     {
-        $requestPath = $this->getRequestPath();
-        if (file_exists($requestPath)) {
-            unlink($requestPath);
+        $logsPath = self::getLogsPath();
+        $files    = [
+            self::LOG_FILE,
+            self::REQUEST_FILE,
+            self::RESPONSE_FILE,
+        ];
+        foreach ($files as $file) {
+            file_put_contents($logsPath.$file, '');
         }
     }
 
@@ -214,7 +231,7 @@ class MockServer
     public function stopServer(): bool
     {
         try {
-            $pid = $this->getServerPID();
+            $pid     = $this->getServerPID();
             $command = sprintf('kill %d', $pid);
             exec($command, $output, $resultCode);
 
@@ -231,6 +248,6 @@ class MockServer
 
     public function getUrl($uri): string
     {
-        return $this->getBaseUrl() . $uri;
+        return $this->getBaseUrl().$uri;
     }
 }

@@ -1,1 +1,2 @@
-#tests/assets/MockServerTest/router\.php#
+#.*/tests/MockServer/router\.php#
+#.*/src/include/.*#

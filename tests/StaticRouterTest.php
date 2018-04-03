@@ -2,11 +2,15 @@
 
 namespace EdmondsCommerce\MockServer;
 
-use EdmondsCommerce\MockServer\Exception\RouterException;
-use http\Env\Request;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Class StaticRouterTest
+ *
+ * @package EdmondsCommerce\MockServer
+ * @SuppressWarnings(PHPMD.StaticAccess)
+ */
 class StaticRouterTest extends TestCase
 {
     /**
@@ -16,21 +20,16 @@ class StaticRouterTest extends TestCase
 
     public function setUp()
     {
-        $this->router = new StaticRouter();
-    }
-
-    public function testItWillThrowAnExceptionOnNoRouteWithNo404Defined()
-    {
-        $this->expectException(RouterException::class);
-        $this->expectExceptionMessage('No 404 response defined');
-
-        $this->router->run('/');
+        $this->router = Factory::getStaticRouter();
     }
 
     public function testItWillReturnTheNotFoundPageWhenNotFound()
     {
         $this->router->setNotFound('Not Found');
-        $result = $this->router->run('/');
+        $result = $this->router->run('/does-not-exist');
+        if (null === $result) {
+            throw new \Exception('response is null');
+        }
 
         $this->assertInstanceOf(Response::class, $result);
         $this->assertEquals(404, $result->getStatusCode());
@@ -41,7 +40,9 @@ class StaticRouterTest extends TestCase
     {
         $this->router->addRoute('/test', 'Found it');
         $result = $this->router->run('/test');
-
+        if (null === $result) {
+            throw new \Exception('response is null');
+        }
         $this->assertInstanceOf(Response::class, $result);
         $this->assertEquals('Found it', $result->getContent());
     }
@@ -50,7 +51,6 @@ class StaticRouterTest extends TestCase
      * @SuppressWarnings(PHPMD.Superglobals)
      * @throws \Exception
      */
-
     public function testItWillDetectTheRequestUri()
     {
         //Fake the server request
@@ -59,6 +59,9 @@ class StaticRouterTest extends TestCase
         $this->router->addRoute('/test', 'Detected');
 
         $result = $this->router->run();
+        if (null === $result) {
+            throw new \Exception('response is null');
+        }
 
         $this->assertInstanceOf(Response::class, $result);
         $this->assertEquals('Detected', $result->getContent());
@@ -78,6 +81,9 @@ class StaticRouterTest extends TestCase
         });
 
         $result = $this->router->run();
+        if (null === $result) {
+            throw new \Exception('response is null');
+        }
 
         $this->assertEquals('This is a callback result', $result->getContent());
     }
@@ -88,36 +94,12 @@ class StaticRouterTest extends TestCase
      */
     public function testItWillCreateRequestFilesOnRequest()
     {
-        $logDir = MockServer::getTempDirectory();
+        $logDir = MockServer::getLogsPath();
 
         $this->router->addRoute('/', 'Test');
         $this->router->run('/');
 
-        $this->assertFileExists($logDir.'/request.json');
+        $this->assertFileExists($logDir.'/'.MockServer::REQUEST_FILE);
     }
 
-    /**
-     * @SuppressWarnings(PHPMD.StaticAccess)
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @throws \Exception
-     */
-
-    public function testTheRequestFileWillContainRequiredValues()
-    {
-        $logDir = MockServer::getTempDirectory();
-        $this->router->addRoute('/', 'Body output');
-
-        $_SERVER['REQUEST_URI'] = '/';
-        $_POST = ['test' => 1, 'another' => ['a', 'b', 'c']];
-        $_GET = ['page' => 1, 'limit' => 10];
-
-        $this->router->run();
-        $response = @file_get_contents($logDir.'/request.json');
-
-        $this->assertInternalType('string', $response);
-        $this->assertEquals([
-            'post' => $_POST,
-            'get' => $_GET
-        ], json_decode($response, true));
-    }
 }

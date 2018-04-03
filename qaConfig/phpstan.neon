@@ -1,0 +1,6 @@
+includes:
+    - ../vendor/edmondscommerce/phpqa/configDefaults/phpstan.neon
+parameters:
+	excludes_analyse:
+		- src/include/routerBottom.php
+		- tests/MockServer/router.php

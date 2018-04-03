@@ -2,6 +2,7 @@
 
 namespace EdmondsCommerce\MockServer;
 
+use EdmondsCommerce\MockServer\Testing\SetupsUpMockServerBeforeClassTrait;
 use Guzzle\Http\Client;
 use PHPUnit\Framework\TestCase;
 
@@ -12,33 +13,7 @@ use PHPUnit\Framework\TestCase;
  */
 class MockServerTest extends TestCase
 {
-    /**
-     * @var MockServer
-     */
-    private $server;
-
-
-    /**
-     * @SuppressWarnings(PHPMD.StaticAccess)
-     * @throws \Exception
-     */
-    public function setUp()
-    {
-        parent::setUp();
-
-        //Remove all MWS directories for a clean run
-        exec('rm -rf '.MockServer::getTempDirectory());
-
-        $this->server = new MockServer(__DIR__.'/assets/MockServerTest/router.php');
-    }
-
-    public function tearDown()
-    {
-        parent::tearDown();
-
-        //Stop the server before rerunning the next test and to stop the process being left behind
-        $this->server->stopServer();
-    }
+    use SetupsUpMockServerBeforeClassTrait;
 
     /**
      * @SuppressWarnings(PHPMD.StaticAccess)
@@ -47,17 +22,13 @@ class MockServerTest extends TestCase
      */
     public function testItWillHandleARoutingFile()
     {
-        $this->server->startServer();
+        $url = static::$mockServer->getUrl('/routed');
 
-        $url = $this->server->getUrl('/');
-
-        $this->server->startServer();
-
-        $client = new Client();
+        $client   = new Client();
         $response = $client->createRequest('GET', $url)->send();
-        $html = $response->getBody(true);
+        $html     = $response->getBody(true);
 
-        $this->assertEquals('Routed Content', $html);
+        $this->assertEquals('Routed', $html);
     }
 
     /**
@@ -65,30 +36,14 @@ class MockServerTest extends TestCase
      */
     public function testItWillHandleFriendlyUrls()
     {
-        $this->server->startServer();
-        $url = $this->server->getUrl('/admin');
 
-        $this->server->startServer();
+        $url = static::$mockServer->getUrl('/admin');
 
-        $client = new Client();
+        $client   = new Client();
         $response = $client->createRequest('GET', $url)->send();
-        $html = $response->getBody(true);
+        $html     = $response->getBody(true);
 
         $this->assertEquals('Admin Login', $html);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function testItCanGetTheRequest()
-    {
-        $this->server->startServer();
-        $url = $this->server->getUrl('/');
-        file_get_contents($url);
-
-        $request = $this->server->getRequest();
-
-        $this->assertInstanceOf(MockServerRequest::class, $request);
     }
 
     /**
@@ -98,20 +53,12 @@ class MockServerTest extends TestCase
 
     public function testItWillClearTheRequestOnStart()
     {
-        $requestFile = MockServer::getTempDirectory().'/request.json';
+        $requestFile = MockServer::getLogsPath().'/'.MockServer::REQUEST_FILE;
         touch($requestFile);
 
-        $this->server->startServer();
-
-        $this->assertFileNotExists($requestFile);
+        static::$mockServer->startServer();
+        $contents = file_get_contents($requestFile);
+        $this->assertEmpty($contents, 'request file contains: '.$contents);
     }
 
-    public function testItWillErrorOnWhenTryingToGetTheRequestBeforeReceivingARequest()
-    {
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Could not retrieve request, no request has been made yet');
-
-        $this->server->startServer();
-        $this->server->getRequest();
-    }
 }

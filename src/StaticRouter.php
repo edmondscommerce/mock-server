@@ -20,6 +20,65 @@ use Symfony\Component\Routing\RouteCollection;
  */
 class StaticRouter
 {
+    public const NOT_FOUND = 'Not Found';
+
+    public const STATIC_EXTENSIONS_SUPPORTED = [
+        '3gp',
+        'apk',
+        'avi',
+        'bmp',
+        'css',
+        'csv',
+        'doc',
+        'docx',
+        'flac',
+        'gif',
+        'gz',
+        'gzip',
+        'htm',
+        'html',
+        'ics',
+        'jpe',
+        'jpeg',
+        'jpg',
+        'js',
+        'kml',
+        'kmz',
+        'm4a',
+        'mov',
+        'mp3',
+        'mp4',
+        'mpeg',
+        'mpg',
+        'odp',
+        'ods',
+        'odt',
+        'oga',
+        'ogg',
+        'ogv',
+        'pdf',
+        'pdf',
+        'png',
+        'pps',
+        'pptx',
+        'qt',
+        'svg',
+        'swf',
+        'tar',
+        'text',
+        'tif',
+        'txt',
+        'wav',
+        'webm',
+        'wmv',
+        'xls',
+        'xlsx',
+        'xml',
+        'xsl',
+        'xsd',
+        'zip',
+    ];
+
     /**
      * @var RouteCollection
      */
@@ -35,9 +94,21 @@ class StaticRouter
      */
     private $notFoundResponse;
 
-    public function __construct()
+    /**
+     * @var string
+     */
+    private $htdocsPath;
+
+    private $verbose = false;
+
+    public function __construct(string $htdocsPath)
     {
         $this->routes = new RouteCollection();
+        $this->setNotFound(static::NOT_FOUND);
+        $this->htdocsPath = $htdocsPath;
+        if (!is_dir($this->htdocsPath)) {
+            throw new \RuntimeException('htdocs path does not exist: '.$this->htdocsPath);
+        }
     }
 
     /**
@@ -131,10 +202,6 @@ class StaticRouter
      */
     public function respondNotFound(): Response
     {
-        if (empty($this->notFoundResponse)) {
-            throw new RouterException('No 404 response defined');
-        }
-
         return new Response($this->notFoundResponse, 404);
     }
 
@@ -148,17 +215,60 @@ class StaticRouter
      * @throws \InvalidArgumentException
      * @throws RouterException
      */
-    public function run(string $requestUri = null): Response
+    public function run(string $requestUri = null): ?Response
     {
-        if (empty($requestUri)) {
-            $requestUri = $_SERVER['REQUEST_URI'];
+        if (null !== $requestUri) {
+            $_SERVER['REQUEST_URI'] = $requestUri;
         }
-
+        if ('/' === $_SERVER['REQUEST_URI']) {
+            $_SERVER['REQUEST_URI'] = '/index.html';
+        }
         $request = Request::createFromGlobals();
         $this->logRequest($request);
+        if ($this->isStaticAsset($request)) {
+            return null;
+        }
+        $response = $this->getResponse($request);
+        $this->logResponse($response);
 
+        return $response;
+    }
+
+    /**
+     * @param Request $request
+     *
+     * Is the request for a static file that exists in the htdocs folder and has a supported extension?
+     *
+     * @return bool
+     */
+    public function isStaticAsset(Request $request): bool
+    {
+        $uri = $request->getRequestUri();
+        if (
+            file_exists($this->htdocsPath.'/'.$uri)
+            && \in_array(
+                \pathinfo($uri, PATHINFO_EXTENSION),
+                self::STATIC_EXTENSIONS_SUPPORTED,
+                true
+            )
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return Response
+     * @throws \InvalidArgumentException
+     * @throws RouterException
+     */
+    protected function getResponse(Request $request): Response
+    {
         try {
-            $route = $this->matchRoute($requestUri);
+            $route = $this->matchRoute($request->getRequestUri());
         } catch (NoConfigurationException $e) {
             return $this->respondNotFound();
         } catch (RouterException $exception) {
@@ -167,13 +277,11 @@ class StaticRouter
 
         //Is there a closure callback registered with this route?
         $callbackResult = '';
-        if (isset($this->callbacks[$requestUri])) {
-            $callbackResult .= $this->callbacks[$requestUri]();
+        if (isset($this->callbacks[$request->getRequestUri()])) {
+            $callbackResult .= $this->callbacks[$request->getRequestUri()]();
         }
 
-        $responseBody = $route['response'].$callbackResult;
-
-        //TODO: Need to dump a response object on the file system alongside the request
+        $responseBody = (string)$route['response'].$callbackResult;
 
         return new Response($responseBody);
     }
@@ -186,13 +294,19 @@ class StaticRouter
      */
     protected function logRequest(Request $request)
     {
-        $requestPath = MockServer::getTempDirectory().'/request.json';
+        $requestPath = MockServer::getLogsPath().'/'.MockServer::REQUEST_FILE;
         $output      = [
-            'post' => $request->request->all(),
-            'get'  => $request->query->all(),
+            'post'   => $request->request->all(),
+            'get'    => $request->query->all(),
+            'server' => $request->server->all(),
+            'files'  => $request->files->all(),
         ];
+        $uri         = $request->getRequestUri();
+        if (true === $this->verbose) {
+            file_put_contents('php://stderr', "\nRequest: $uri\n".var_export($output, true));
+        }
 
-        if (file_put_contents($requestPath, json_encode($output)) === false) {
+        if (file_put_contents($requestPath, serialize($request)) === false) {
             throw new \RuntimeException('Could not write request output to '.$requestPath);
         }
     }
@@ -203,13 +317,32 @@ class StaticRouter
      *
      * @throws \Exception
      */
-    protected function logResponse(Response $response)
+    protected function logResponse(Response $response): void
     {
-        $responsePath = MockServer::getTempDirectory().'/response.json';
-        $output       = $response->getContent();
+        $responsePath = MockServer::getLogsPath().'/'.MockServer::RESPONSE_FILE;
 
-        if (file_put_contents($responsePath, json_encode($output)) === false) {
+        $log = [
+            'headers' => $response->headers->all(),
+            'output'  => $response->getContent(),
+        ];
+        if (true === $this->verbose) {
+            file_put_contents('php://stderr', "\nResponse: \n".var_export($log, true));
+        }
+
+        if (file_put_contents($responsePath, serialize($response)) === false) {
             throw new \RuntimeException('Could not write response output to '.$responsePath);
         }
+    }
+
+    /**
+     * @param bool $verbose
+     *
+     * @return StaticRouter
+     */
+    public function setVerbose(bool $verbose): StaticRouter
+    {
+        $this->verbose = $verbose;
+
+        return $this;
     }
 }
