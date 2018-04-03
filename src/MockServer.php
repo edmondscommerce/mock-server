@@ -237,9 +237,12 @@ class MockServer
         }
         $command = sprintf('set -x; kill %d 2>&1', $pid);
         exec($command, $output, $resultCode);
-
+        $output = implode("\n", $output);
         if (0 !== $resultCode) {
-            throw new \RuntimeException('Failed stopping server: '.implode("\n", $output));
+            if (false !== stripos($output, 'no such process')) {
+                return;
+            }
+            throw new \RuntimeException('Failed stopping server: '.$output);
         }
     }
 
