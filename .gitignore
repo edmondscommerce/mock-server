@@ -1,3 +1,5 @@
 vendor/*
 bin/*
+!bin/start-mock-server
+!bin/stop-mock-server
 .idea/*

@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+source="${BASH_SOURCE[0]}"
+while [ -h "$source" ]; do # resolve $SOURCE until the file is no longer a symlink
+  dir="$( cd -P "$( dirname "$source" )" && pwd )"
+  source="$(readlink "$source")"
+  [[ $source != /* ]] && source="$dir/$source" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+dir="$( cd -P "$( dirname "$source" )" && pwd )"
+cd $dir;
+
+function findAutoload(){
+    local path=.
+    local exitCode
+    while [[ $path != / ]];
+    do
+        path="$(realpath $path/../)"
+        find $path -type f -wholename '*vendor/autoload.php' | grep autoload
+        exitCode=$?
+        if (( exitCode < 1 ))
+        then
+            break;
+        fi
+    done
+}
+
+autoloadPath="$(findAutoload)"
+
+if [[ -z $MockServer_Ip ]]
+then
+    export MockServer_Ip="$(ip route get 1 | awk '{print $NF;exit}')"
+fi
+
+## If you pass in the argument "foreground" then the mock server will run in the foreground, great for debugging
+background="true"
+if [[ $@[*] == *foreground* ]]
+then
+    background="false"
+fi
+
+commandToExecute="$(php -r "$( cat <<PHP
+declare(strict_types=1);
+
+require '$autoloadPath';
+
+use EdmondsCommerce\MockServer\Factory;
+
+echo Factory::getMockServer()->getStartCommand($background);
+PHP
+    )"
+)"
+
+bash -c "$commandToExecute"
+echo "server is started"
+
+
