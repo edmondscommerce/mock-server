@@ -14,5 +14,7 @@ $router->addRoute('/routed', 'Routed');
 
 $router->addRoute('/admin', 'Admin Login');
 
-
-require __DIR__.'/../../src/include/routerBottom.php';
+/**
+ * IMPORTANT - you have to `return` the required routerBottom
+ */
+return require __DIR__.'/../../src/include/routerBottom.php';

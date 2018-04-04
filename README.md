@@ -58,8 +58,10 @@ require __DIR__.'/../../vendor/edmondscommerce/mock-server/src/include/routerTop
  * @var \EdmondsCommerce\MockServer\StaticRouter $router
  */
 
-
-require __DIR__.'/../../vendor/edmondscommerce/mock-server/src/include/routerBottom.php';
+/**
+ * IMPORTANT - you have to `return` the required routerBottom
+ */
+return require __DIR__.'/../../vendor/edmondscommerce/mock-server/src/include/routerBottom.php';
 ```
 
 ### Starting the server manually
