@@ -67,7 +67,7 @@ class MockServer
             throw new \RuntimeException('Htdocs folder does not exist: "'.$this->htdocsPath.'"');
         }
         $this->ipAddress = trim($ipAddress ?? MockServerConfig::DEFAULT_IP);
-        $this->port      = trim($port ?? MockServerConfig::DEFAULT_PORT);
+        $this->port      = $port ?? MockServerConfig::DEFAULT_PORT;
         $this->clearLogs();
     }
 
