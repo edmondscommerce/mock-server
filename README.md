@@ -64,7 +64,7 @@ require __DIR__.'/../../vendor/edmondscommerce/mock-server/src/include/routerBot
 
 ### Starting the server manually
 
-To start the server manually, you can simply use [`./bin/start-mock-server`](./bin/start-mock-server) which will start a backgrounded mock server. If you want it in the foreground, simply pass "foreground" as an argument
+To start the server manually, you can simply use [start-mock-server](./bin/start-mock-server) which will start a backgrounded mock server. If you want it in the foreground, simply pass "foreground" as an argument
 
 ```bash
 ./bin/start-mock-server foreground
