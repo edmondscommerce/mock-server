@@ -62,12 +62,12 @@ class MockServer
         }
         $this->routerPath = realpath($routerPath);
 
-        $this->htdocsPath = $htdocsPath ?: \dirname($this->routerPath);
+        $this->htdocsPath = trim($htdocsPath ?: \dirname($this->routerPath));
         if (!is_dir($this->htdocsPath)) {
             throw new \RuntimeException('Htdocs folder does not exist: "'.$this->htdocsPath.'"');
         }
-        $this->ipAddress = ($ipAddress ?? MockServerConfig::DEFAULT_IP);
-        $this->port      = ($port ?? MockServerConfig::DEFAULT_PORT);
+        $this->ipAddress = trim($ipAddress ?? MockServerConfig::DEFAULT_IP);
+        $this->port      = trim($port ?? MockServerConfig::DEFAULT_PORT);
         $this->clearLogs();
     }
 
