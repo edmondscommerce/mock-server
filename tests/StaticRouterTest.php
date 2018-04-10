@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @package EdmondsCommerce\MockServer
  * @SuppressWarnings(PHPMD.StaticAccess)
+ * @SuppressWarnings(PHPMD.Superglobals)
  */
 class StaticRouterTest extends TestCase
 {
@@ -48,7 +49,6 @@ class StaticRouterTest extends TestCase
     }
 
     /**
-     * @SuppressWarnings(PHPMD.Superglobals)
      * @throws \Exception
      */
     public function testItWillDetectTheRequestUri()
@@ -68,16 +68,31 @@ class StaticRouterTest extends TestCase
     }
 
     /**
-     * @SuppressWarnings(PHPMD.Superglobals)
      * @throws \Exception
      */
+    public function testItEnforcesCallbackReturnType()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $_SERVER['REQUEST_URI'] = '/some-callback';
 
+        $this->router->addCallbackRoute('/bad-return-type', function () {
+            return 'this function does not have the correct return type';
+        });
+
+        $this->router->run();
+    }
+
+    /**
+     * @throws Exception\RouterException
+     * @throws \Exception
+     *
+     */
     public function testItCanHandleCallbackRoutes()
     {
         $_SERVER['REQUEST_URI'] = '/some-callback';
 
-        $this->router->addCallbackRoute('/some-callback', '', function () {
-            return 'This is a callback result';
+        $this->router->addCallbackRoute('/some-callback', function (): Response {
+            return new Response('This is a callback result');
         });
 
         $result = $this->router->run();
@@ -89,7 +104,6 @@ class StaticRouterTest extends TestCase
     }
 
     /**
-     * @SuppressWarnings(PHPMD.StaticAccess)
      * @throws \Exception
      */
     public function testItWillCreateRequestFilesOnRequest()

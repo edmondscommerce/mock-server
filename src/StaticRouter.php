@@ -3,6 +3,7 @@
 namespace EdmondsCommerce\MockServer;
 
 use EdmondsCommerce\MockServer\Exception\RouterException;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\NoConfigurationException;
@@ -85,11 +86,6 @@ class StaticRouter
     private $routes;
 
     /**
-     * @var \Closure[]
-     */
-    private $callbacks = [];
-
-    /**
      * @var string
      */
     private $notFoundResponse;
@@ -99,6 +95,9 @@ class StaticRouter
      */
     private $htdocsPath;
 
+    /**
+     * @var bool
+     */
     private $verbose = false;
 
     public function __construct(string $htdocsPath)
@@ -154,10 +153,48 @@ class StaticRouter
         return $this->addRoute($uri, file_get_contents($fileResponse));
     }
 
-    public function addCallbackRoute(string $uri, string $response, \Closure $closure)
+    /**
+     * @param string   $uri
+     * @param \Closure $closure - must return a Response object
+     *
+     * @return $this
+     * @throws \Exception
+     */
+    public function addCallbackRoute(string $uri, \Closure $closure)
     {
-        $this->addRoute($uri, $response);
-        $this->callbacks[$uri] = $closure;
+        $returnType = (string)(new \ReflectionFunction($closure))->getReturnType();
+        if ($returnType !== Response::class) {
+            throw new \InvalidArgumentException(
+                'invalid return type  "'.$returnType
+                .'" - closure must return a "'.Response::class.'" (and type hint for that)'
+            );
+        }
+        $this->routes->add(
+            $uri,
+            new Route(
+                $uri,
+                ['_controller' => $closure]
+            )
+        );
+
+        return $this;
+    }
+
+    /**
+     * @param string $uri
+     * @param string $pathToFile
+     *
+     * @return StaticRouter
+     * @throws \Exception
+     */
+    public function addFileDownloadRoute(string $uri, string $pathToFile): StaticRouter
+    {
+        $this->addCallbackRoute($uri, function (Request $request) use ($pathToFile): Response {
+            $response = new BinaryFileResponse($pathToFile);
+            $response->prepare($request);
+
+            return $response;
+        });
 
         return $this;
     }
@@ -178,27 +215,26 @@ class StaticRouter
 
     /**
      * @SuppressWarnings(PHPMD.StaticAccess)
-     * @param string $requestUri
+     * @param Request $request
      *
      * @return array
-     * @throws \EdmondsCommerce\MockServer\Exception\RouterException
+     * @throws \Symfony\Component\Routing\Exception\MethodNotAllowedException
+     * @throws RouterException
      */
-    public function matchRoute(string $requestUri): array
+    public function matchRoute(Request $request): array
     {
         $context = new RequestContext();
-        $context->fromRequest(Request::createFromGlobals());
-
+        $context->fromRequest($request);
         $matcher = new UrlMatcher($this->routes, $context);
         try {
-            return $matcher->match($requestUri);
+            return $matcher->match($request->getRequestUri());
         } catch (ResourceNotFoundException $e) {
-            throw new RouterException('Could not find route for '.$requestUri);
+            throw new RouterException('Could not find route for '.$request->getRequestUri());
         }
     }
 
     /**
      * @throws \InvalidArgumentException
-     * @throws RouterException
      */
     public function respondNotFound(): Response
     {
@@ -267,22 +303,21 @@ class StaticRouter
     protected function getResponse(Request $request): Response
     {
         try {
-            $route = $this->matchRoute($request->getRequestUri());
+            $route = $this->matchRoute($request);
         } catch (NoConfigurationException $e) {
             return $this->respondNotFound();
         } catch (RouterException $exception) {
             return $this->respondNotFound();
         }
 
-        //Is there a closure callback registered with this route?
-        $callbackResult = '';
-        if (isset($this->callbacks[$request->getRequestUri()])) {
-            $callbackResult .= $this->callbacks[$request->getRequestUri()]();
+        /**
+         * The _controller is our callback closure
+         */
+        if (isset($route['_controller'])) {
+            return $route['_controller']($request);
         }
 
-        $responseBody = (string)$route['response'].$callbackResult;
-
-        return new Response($responseBody);
+        return new Response($route['response']);
     }
 
     /**
@@ -327,8 +362,15 @@ class StaticRouter
         if (true === $this->verbose) {
             file_put_contents('php://stderr', "\nResponse: \n".var_export($log, true));
         }
-
-        if (file_put_contents($responsePath, serialize($response)) === false) {
+        try {
+            $serialized = serialize($response);
+        } catch (\Exception $e) {
+            $serialized = serialize(
+                (new Response($response->getContent()))
+                    ->headers->replace($response->headers->all())
+            );
+        }
+        if (file_put_contents($responsePath, $serialized) === false) {
             throw new \RuntimeException('Could not write response output to '.$responsePath);
         }
     }

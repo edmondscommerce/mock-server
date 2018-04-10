@@ -30,7 +30,22 @@ then
     export MockServer_Ip="$(ip route get 1 | awk '{print $NF;exit}')"
 fi
 
-## If you pass in the argument "foreground" then the mock server will run in the foreground, great for debugging
+echo "Starting server on:"
+
+php -r "$(cat <<PHP
+declare(strict_types=1);
+
+require '$autoloadPath';
+
+use EdmondsCommerce\MockServer\Factory;
+
+echo Factory::getMockServer()->getBaseUrl()."\n";
+PHP
+)"
+
+
+## If you pass in the argument "foreground" then the mock server will run in the foreground,
+## great for debugging
 background="true"
 if [[ $@[*] == *foreground* ]]
 then
@@ -51,5 +66,6 @@ PHP
 
 bash -c "$commandToExecute"
 echo "server is started"
+
 
 

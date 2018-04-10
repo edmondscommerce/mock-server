@@ -11,7 +11,7 @@ use EdmondsCommerce\MockServer\MockServer;
  * @package EdmondsCommerce\MockServer\Testing
  * @SuppressWarnings(PHPMD.StaticAccess)
  */
-trait SetupsUpMockServerBeforeClassTrait
+trait SetsUpMockServerBeforeClassTrait
 {
 
     /**

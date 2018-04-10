@@ -110,15 +110,15 @@ class MockServer
         $nohup       = '';
         $detatch     = '';
         if (true === $background) {
-            $nohup   = 'nohup';
-            $detatch = '> '.$logFilePath.' 2>&1 &';
+            $nohup   = ' nohup ';
+            $detatch = ' > \''.$logFilePath.'\' 2>&1 &';
         }
 
         return 'cd '.$this->htdocsPath.';'
                .$nohup
                .' php '
                .' -d error_reporting=E_ALL'
-               .' -d error_log="'.$logFilePath.'"'
+               .' -d error_log=\''.$logFilePath.'\''
                .' -S '.$this->ipAddress.':'.$this->port.' '.$this->routerPath
                .$detatch;
     }
@@ -179,10 +179,7 @@ class MockServer
      */
     public function isServerRunning(): bool
     {
-
         $pid = $this->getServerPID();
-
-
         return ($pid > 0);
     }
 
@@ -238,7 +235,7 @@ class MockServer
         if ($pid === 0) {
             return;
         }
-        $command = sprintf('set -x; kill %d 2>&1', $pid);
+        $command = sprintf('kill %d 2>&1', $pid);
         exec($command, $output, $resultCode);
         $output = implode("\n", $output);
         if (0 !== $resultCode) {
@@ -249,7 +246,7 @@ class MockServer
         }
     }
 
-    protected function getBaseUrl(): string
+    public function getBaseUrl(): string
     {
         return sprintf('http://%s:%d', $this->ipAddress, $this->port);
     }

@@ -2,7 +2,7 @@
 
 namespace EdmondsCommerce\MockServer;
 
-use EdmondsCommerce\MockServer\Testing\SetupsUpMockServerBeforeClassTrait;
+use EdmondsCommerce\MockServer\Testing\SetsUpMockServerBeforeClassTrait;
 use Guzzle\Http\Client;
 use PHPUnit\Framework\TestCase;
 
@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  */
 class MockServerTest extends TestCase
 {
-    use SetupsUpMockServerBeforeClassTrait;
+    use SetsUpMockServerBeforeClassTrait;
 
     /**
      * @SuppressWarnings(PHPMD.StaticAccess)
@@ -59,5 +59,14 @@ class MockServerTest extends TestCase
         static::$mockServer->startServer();
         $contents = file_get_contents($requestFile);
         $this->assertEmpty($contents, 'request file contains: '.$contents);
+    }
+
+    public function testItServesDownloadRoutes()
+    {
+        $url                = static::$mockServer->getUrl('/download');
+        $client             = new Client();
+        $response           = $client->createRequest('GET', $url)->send();
+        $contentDisposition = $response->getContentDisposition();
+        $this->assertEquals($contentDisposition, $contentDisposition);
     }
 }
