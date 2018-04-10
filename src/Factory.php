@@ -54,19 +54,4 @@ class Factory
         return unserialize($serialized, ['allowed_classes' => [Request::class]]);
     }
 
-    /**
-     * @return Response
-     * @throws \RuntimeException
-     */
-    public static function getLastResponse(): Response
-    {
-        $serialized = file_get_contents(
-            MockServerConfig::getLogsPath().'/'.MockServer::RESPONSE_FILE
-        );
-        if (empty($serialized)) {
-            throw new \RuntimeException('response log file is empty');
-        }
-
-        return unserialize($serialized, ['allowed_classes' => [Response::class]]);
-    }
 }

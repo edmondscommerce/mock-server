@@ -180,6 +180,7 @@ class MockServer
     public function isServerRunning(): bool
     {
         $pid = $this->getServerPID();
+
         return ($pid > 0);
     }
 

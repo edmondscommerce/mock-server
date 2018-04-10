@@ -6,6 +6,7 @@ use EdmondsCommerce\MockServer\Exception\RouterException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Exception\NoConfigurationException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
@@ -191,6 +192,10 @@ class StaticRouter
     {
         $this->addCallbackRoute($uri, function (Request $request) use ($pathToFile): Response {
             $response = new BinaryFileResponse($pathToFile);
+            $response->setContentDisposition(
+                ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                basename($pathToFile)
+            );
             $response->prepare($request);
 
             return $response;
@@ -249,7 +254,6 @@ class StaticRouter
      * @return Response
      * @throws \Exception
      * @throws \InvalidArgumentException
-     * @throws RouterException
      */
     public function run(string $requestUri = null): ?Response
     {
@@ -265,7 +269,6 @@ class StaticRouter
             return null;
         }
         $response = $this->getResponse($request);
-        $this->logResponse($response);
 
         return $response;
     }
@@ -298,7 +301,6 @@ class StaticRouter
      *
      * @return Response
      * @throws \InvalidArgumentException
-     * @throws RouterException
      */
     protected function getResponse(Request $request): Response
     {
@@ -342,36 +344,6 @@ class StaticRouter
 
         if (file_put_contents($requestPath, serialize($request)) === false) {
             throw new \RuntimeException('Could not write request output to '.$requestPath);
-        }
-    }
-
-    /**
-     * @SuppressWarnings(PHPMD.StaticAccess)
-     * @param Response $response
-     *
-     * @throws \Exception
-     */
-    protected function logResponse(Response $response): void
-    {
-        $responsePath = MockServer::getLogsPath().'/'.MockServer::RESPONSE_FILE;
-
-        $log = [
-            'headers' => $response->headers->all(),
-            'output'  => $response->getContent(),
-        ];
-        if (true === $this->verbose) {
-            file_put_contents('php://stderr', "\nResponse: \n".var_export($log, true));
-        }
-        try {
-            $serialized = serialize($response);
-        } catch (\Exception $e) {
-            $serialized = serialize(
-                (new Response($response->getContent()))
-                    ->headers->replace($response->headers->all())
-            );
-        }
-        if (file_put_contents($responsePath, $serialized) === false) {
-            throw new \RuntimeException('Could not write response output to '.$responsePath);
         }
     }
 

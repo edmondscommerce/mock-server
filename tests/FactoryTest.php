@@ -2,7 +2,7 @@
 
 namespace EdmondsCommerce\MockServer;
 
-use Guzzle\Http\Client;
+use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -35,17 +35,15 @@ class FactoryTest extends TestCase
     /**
      * @throws \Exception
      */
-    public function testCanGetLastRequestAndResponse()
+    public function testCanGetLastRequest()
     {
         $mockServer = Factory::getMockServer();
         $mockServer->startServer();
         $url    = $mockServer->getUrl('/admin');
         $client = new Client();
-        $client->createRequest('GET', $url)->send();
+        $client->request('GET', $url);
         $request  = Factory::getLastRequest();
-        $response = Factory::getLastResponse();
         $this->assertEquals('/admin', $request->getRequestUri());
-        $this->assertEquals('Admin Login', $response->getContent());
     }
 
 

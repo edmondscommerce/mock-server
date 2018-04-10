@@ -3,7 +3,7 @@
 namespace EdmondsCommerce\MockServer;
 
 use EdmondsCommerce\MockServer\Testing\SetsUpMockServerBeforeClassTrait;
-use Guzzle\Http\Client;
+use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -25,7 +25,7 @@ class MockServerTest extends TestCase
         $url = static::$mockServer->getUrl('/routed');
 
         $client   = new Client();
-        $response = $client->createRequest('GET', $url)->send();
+        $response = $client->request('GET', $url);
         $html     = $response->getBody(true);
 
         $this->assertEquals('Routed', $html);
@@ -40,7 +40,7 @@ class MockServerTest extends TestCase
         $url = static::$mockServer->getUrl('/admin');
 
         $client   = new Client();
-        $response = $client->createRequest('GET', $url)->send();
+        $response = $client->request('GET', $url);
         $html     = $response->getBody(true);
 
         $this->assertEquals('Admin Login', $html);
@@ -63,10 +63,27 @@ class MockServerTest extends TestCase
 
     public function testItServesDownloadRoutes()
     {
-        $url                = static::$mockServer->getUrl('/download');
-        $client             = new Client();
-        $response           = $client->createRequest('GET', $url)->send();
-        $contentDisposition = $response->getContentDisposition();
-        $this->assertEquals($contentDisposition, $contentDisposition);
+        $url      = static::$mockServer->getUrl('/download');
+        $client   = new Client();
+        $buffer   = fopen('php://temp', 'w');
+        $response = $client->request(
+            'GET',
+            $url,
+            [
+                'save_to'     => $buffer,
+                'synchronous' => true,
+            ]
+        );
+        $this->assertEquals(
+            'attachment; filename="downloadfile.extension"',
+            current($response->getHeader('Content-Disposition'))
+        );
+        rewind($buffer);
+        $contents = fread($buffer, 9999);
+        $this->assertNotEmpty($contents);
+        $this->assertEquals('this is a download file', trim($contents));
+        fclose($buffer);
+
+
     }
 }
