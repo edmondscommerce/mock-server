@@ -53,5 +53,4 @@ class Factory
 
         return unserialize($serialized, ['allowed_classes' => [Request::class]]);
     }
-
 }

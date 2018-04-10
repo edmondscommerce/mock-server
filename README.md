@@ -81,17 +81,23 @@ export MockServer_Ip="0.0.0.0"
 
 ## Router Types
 
-### Static Files (css/js/etc...)
+### Static Files (css/js/html/etc...)
 
 Static files that are located in the htdocs folder will be served without any further configuration
 
+For the full list of support file types, see: [StaticRouter::STATIC_EXTENSIONS_SUPPORTED](./src/StaticRouter.php#L27)
+
 ### Callback
 
-The callback router sets a function which will be called. The return of the function should be text, or a redirect etc.
+The callback router sets a closure which will be passed the request object and must return a response object.
 
-See [this test](./tests/StaticRouterTest.php#L75) for an exmaple of a callback.
+See [this test](./tests/StaticRouterTest.php#L88) for an exmaple of a callback.
 
-### Text
+### File Download
+
+The download router will return a file as a download. Internally it sets a callback that then returns a BinaryFileResponse object
+
+### Static Text
 
 Second param of `addRoute($uri, $response)` is the text that will be returned after visiting specified uri.
 
@@ -100,6 +106,8 @@ See [this test](./tests/StaticRouterTest.php#L40) for an example of text route.
 ### Static 
 
 Second param of `addStaticRuote($uri, $response)` is the the file content that will be returned after visiting specified uri.
+
+Do not use this to return files that are in the htdocs folder, it's pointless. This is largely being kept for legacy reasons.
 
 
 

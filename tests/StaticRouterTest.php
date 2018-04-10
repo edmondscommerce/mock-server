@@ -83,9 +83,7 @@ class StaticRouterTest extends TestCase
     }
 
     /**
-     * @throws Exception\RouterException
      * @throws \Exception
-     *
      */
     public function testItCanHandleCallbackRoutes()
     {

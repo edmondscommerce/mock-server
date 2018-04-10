@@ -83,7 +83,5 @@ class MockServerTest extends TestCase
         $this->assertNotEmpty($contents);
         $this->assertEquals('this is a download file', trim($contents));
         fclose($buffer);
-
-
     }
 }
