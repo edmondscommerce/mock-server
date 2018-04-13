@@ -54,9 +54,10 @@ Here is a template router for you to start with:
 ```php
 <?php declare(strict_types=1);
 require __DIR__.'/../../vendor/edmondscommerce/mock-server/src/include/routerTop.php';
-/**
- * @var \EdmondsCommerce\MockServer\StaticRouter $router
- */
+
+$router = \EdmondsCommerce\MockServer\Factory::getStaticRouter();
+
+//Add your routes here
 
 /**
  * IMPORTANT - you have to `return` the required routerBottom

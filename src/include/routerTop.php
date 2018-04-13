@@ -25,13 +25,4 @@ if (!$autoloadFileFound) {
 ini_set('display_errors', '1');
 error_reporting(E_ALL);
 
-/**
- * Now we build the router ready for you to add routes
- */
-$router = \EdmondsCommerce\MockServer\Factory::getStaticRouter();
 
-/**
- * Your file should start with
- *
- * @var \EdmondsCommerce\MockServer\StaticRouter $router
- */

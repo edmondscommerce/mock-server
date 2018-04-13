@@ -3,9 +3,8 @@
 use Symfony\Component\HttpFoundation\Response;
 
 require __DIR__.'/../../src/include/routerTop.php';
-/**
- * @var \EdmondsCommerce\MockServer\StaticRouter $router
- */
+
+$router = \EdmondsCommerce\MockServer\Factory::getStaticRouter();
 
 $router->addStaticRoute('/test.unknownExtension', __DIR__.'/htdocs/test.unknownExtension');
 
