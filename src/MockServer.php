@@ -56,7 +56,8 @@ class MockServer
         string $htdocsPath = '',
         string $ipAddress = null,
         int $port = null
-    ) {
+    )
+    {
         if (!is_file($routerPath)) {
             throw new \RuntimeException('Router file does not exist: "'.$routerPath.'"');
         }
@@ -67,7 +68,7 @@ class MockServer
             throw new \RuntimeException('Htdocs folder does not exist: "'.$this->htdocsPath.'"');
         }
         $this->ipAddress = trim($ipAddress ?? MockServerConfig::DEFAULT_IP);
-        $this->port      = $port ?? MockServerConfig::DEFAULT_PORT;
+        $this->port = $port ?? MockServerConfig::DEFAULT_PORT;
         $this->clearLogs();
     }
 
@@ -107,20 +108,20 @@ class MockServer
     public function getStartCommand(bool $background = true): string
     {
         $logFilePath = self::getLogsPath().'/'.self::LOG_FILE;
-        $nohup       = '';
-        $detatch     = '';
+        $nohup = '';
+        $detatch = '';
         if (true === $background) {
-            $nohup   = ' nohup ';
+            $nohup = ' nohup ';
             $detatch = ' > \''.$logFilePath.'\' 2>&1 &';
         }
 
         return 'cd '.$this->htdocsPath.';'
-               .$nohup
-               .' php '
-               .' -d error_reporting=E_ALL'
-               .' -d error_log=\''.$logFilePath.'\''
-               .' -S '.$this->ipAddress.':'.$this->port.' '.$this->routerPath
-               .$detatch;
+            .$nohup
+            .' php '
+            .' -d error_reporting=E_ALL'
+            .' -d error_log=\''.$logFilePath.'\''
+            .' -S '.$this->ipAddress.':'.$this->port.' '.$this->routerPath
+            .$detatch;
     }
 
 
@@ -145,7 +146,7 @@ class MockServer
 
         //Sleep to allow the web server to start, need to keep this as low as we can to ensure tests don't take forever
         //Maximum attempts to try and connect before we fail out
-        $totalAttempts      = 0;
+        $totalAttempts = 0;
         $maxTimeoutAttempts = 5;
         do {
             usleep(100000); // 0.1s
@@ -160,7 +161,7 @@ class MockServer
     public function clearLogs(): void
     {
         $logsPath = self::getLogsPath();
-        $files    = [
+        $files = [
             self::LOG_FILE,
             self::REQUEST_FILE,
             self::RESPONSE_FILE,
@@ -254,6 +255,10 @@ class MockServer
 
     public function getUrl($uri): string
     {
+        if ('/' !== $uri[0]) {
+            $uri = "/$uri";
+        }
+
         return $this->getBaseUrl().$uri;
     }
 }
