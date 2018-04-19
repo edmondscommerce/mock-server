@@ -139,24 +139,32 @@ class StaticRouter
     }
 
     /**
-     * @param string $uri
-     * @param string $fileResponse
+     * @param string      $uri
+     * @param string      $fileResponse
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
+     *
+     * @param null|string $contentType
      *
      * @return StaticRouter
-     * @throws \RuntimeException
+     * @throws \Exception
      */
-    public function addStaticRoute(string $uri, string $fileResponse): StaticRouter
+    public function addStaticRoute(string $uri, string $fileResponse, ?string $contentType = null): StaticRouter
     {
         if (!file_exists($fileResponse)) {
             throw new \RuntimeException('Could not find file '.$fileResponse);
         }
+        $contentType = $contentType ?? mime_content_type($fileResponse);
         $this->addCallbackRoute(
             $uri,
-            function () use ($fileResponse): Response {
-                header('Content-Type: '.mime_content_type($fileResponse));
-                header('Content-Length: '.filesize($fileResponse));
+            function (Request $request) use ($fileResponse, $contentType): Response {
 
-                new Response(file_get_contents($fileResponse));
+                $response = new Response(file_get_contents($fileResponse));
+                $response->prepare($request);
+                $response->headers->set('Content-Type', $contentType);
+                $response->headers->set('Content-Length', filesize($fileResponse));
+
+                return $response;
             }
         );
 
@@ -343,13 +351,13 @@ class StaticRouter
     protected function logRequest(Request $request)
     {
         $requestPath = MockServer::getLogsPath().'/'.MockServer::REQUEST_FILE;
-        $output = [
+        $output      = [
             'post'   => $request->request->all(),
             'get'    => $request->query->all(),
             'server' => $request->server->all(),
             'files'  => $request->files->all(),
         ];
-        $uri = $request->getRequestUri();
+        $uri         = $request->getRequestUri();
         if (true === $this->verbose) {
             file_put_contents('php://stderr', "\nRequest: $uri\n".var_export($output, true));
         }

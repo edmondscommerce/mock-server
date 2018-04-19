@@ -113,4 +113,22 @@ class StaticRouterTest extends TestCase
 
         $this->assertFileExists($logDir.'/'.MockServer::REQUEST_FILE);
     }
+
+    public function testStaticRouteSetsContentType()
+    {
+        $jsonFile               = __DIR__.'/MockServer/files/jsonfile.json';
+        $_SERVER['REQUEST_URI'] = '/jsonfile.json';
+        $this->router->addStaticRoute(
+            '/jsonfile.json',
+            $jsonFile,
+            'application/json'
+        );
+        $result = $this->router->run();
+        if (!$result instanceof Response) {
+            throw new \Exception('Failed getting a response');
+        }
+        $this->assertEquals('application/json', $result->headers->get('Content-Type'));
+        $this->assertStringEqualsFile($jsonFile, $result->getContent());
+
+    }
 }

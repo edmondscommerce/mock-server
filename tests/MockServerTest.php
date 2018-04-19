@@ -84,4 +84,14 @@ class MockServerTest extends TestCase
         $this->assertEquals('this is a download file', trim($contents));
         fclose($buffer);
     }
+
+    public function testItServesStaticJsonRoutes()
+    {
+        $jsonFile = __DIR__.'/MockServer/files/jsonfile.json';
+        $url      = static::$mockServer->getUrl('jsonfile.json');
+        $client   = new Client();
+        $response = $client->request('GET', $url, ['synchronous' => true]);
+        $this->assertEquals('application/json', current($response->getHeader('Content-Type')));
+        $this->assertStringEqualsFile($jsonFile, $response->getBody());
+    }
 }

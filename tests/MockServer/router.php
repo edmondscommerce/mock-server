@@ -18,6 +18,8 @@ $router->addRoute('/admin', 'Admin Login');
 
 $router->addFileDownloadRoute('/download', __DIR__.'/files/downloadfile.extension');
 
+$router->addStaticRoute('/jsonfile.json', __DIR__.'/files/jsonfile.json', 'application/json');
+
 /**
  * IMPORTANT - you have to `return` the required routerBottom
  */
