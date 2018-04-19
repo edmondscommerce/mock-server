@@ -129,6 +129,5 @@ class StaticRouterTest extends TestCase
         }
         $this->assertEquals('application/json', $result->headers->get('Content-Type'));
         $this->assertStringEqualsFile($jsonFile, $result->getContent());
-
     }
 }

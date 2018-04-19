@@ -56,8 +56,7 @@ class MockServer
         string $htdocsPath = '',
         string $ipAddress = null,
         int $port = null
-    )
-    {
+    ) {
         if (!is_file($routerPath)) {
             throw new \RuntimeException('Router file does not exist: "'.$routerPath.'"');
         }
