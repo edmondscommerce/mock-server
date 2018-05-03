@@ -258,12 +258,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/edmondscommerce/phpqa.git",
-                "reference": "7ba2fa76d2262a8e0595cd2c7be8a6a69a5c16ec"
+                "reference": "d2ada294438037fce285fd724af4b67b630b904e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/edmondscommerce/phpqa/zipball/7ba2fa76d2262a8e0595cd2c7be8a6a69a5c16ec",
-                "reference": "7ba2fa76d2262a8e0595cd2c7be8a6a69a5c16ec",
+                "url": "https://api.github.com/repos/edmondscommerce/phpqa/zipball/d2ada294438037fce285fd724af4b67b630b904e",
+                "reference": "d2ada294438037fce285fd724af4b67b630b904e",
                 "shasum": ""
             },
             "require": {
@@ -300,7 +300,7 @@
                 "MIT"
             ],
             "description": "Simple PHP QA pipeline and scripts. Largely just a collection of dependencies with configuration and scripts to run them together",
-            "time": "2018-05-03T12:11:52+00:00"
+            "time": "2018-05-03T12:48:16+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
