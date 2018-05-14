@@ -92,6 +92,6 @@ class MockServerTest extends TestCase
         $client   = new Client();
         $response = $client->request('GET', $url, ['synchronous' => true]);
         $this->assertEquals('application/json', current($response->getHeader('Content-Type')));
-        $this->assertStringEqualsFile($jsonFile, $response->getBody());
+        $this->assertStringEqualsFile($jsonFile, $response->getBody()->getContents());
     }
 }

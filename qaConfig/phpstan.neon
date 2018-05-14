@@ -1,5 +1,5 @@
 includes:
-    - ../vendor/edmondscommerce/phpqa/configDefaults/phpstan.neon
+    - ../vendor/edmondscommerce/phpqa/configDefaults/generic/phpstan.neon
 parameters:
 	excludes_analyse:
 		- src/include/routerBottom.php
