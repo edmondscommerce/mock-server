@@ -1,15 +1,21 @@
 language: php
+
 git:
   depth: false
-php:
-- 7.1
-- 7.2
-- hhvm
+
 matrix:
-  allow_failures:
-  - php: hhvm
-before_script: bash -x .travis.bash
-script: phpUnitQuickTests=0 ./bin/qa
+  include:
+    - php: 7.1
+      env: phpunitCoverage="0"
+    - php: 7.2
+      env: phpunitCoverage="1"
+
+before_script: bash -x qaConfig/ci/travis/before.bash
+
+script: bash -x ci.bash
+
+after_script: bash -x qaConfig/ci/travis/after.bash
+
 notifications:
   slack:
     on_success: change
