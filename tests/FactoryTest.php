@@ -33,7 +33,7 @@ class FactoryTest extends TestCase
     }
 
     /**
-     * @throws \Exception
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function testCanGetLastRequest()
     {
@@ -50,7 +50,7 @@ class FactoryTest extends TestCase
     public function testItWillErrorOnWhenTryingToGetTheRequestBeforeReceivingARequest()
     {
         $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('request log file is empty');
+        $this->expectExceptionMessageRegExp('%request log file .+? is empty%');
         $mockServer = Factory::getMockServer();
         $mockServer->startServer();
         Factory::getLastRequest();

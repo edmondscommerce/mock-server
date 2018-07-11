@@ -3,7 +3,6 @@
 namespace EdmondsCommerce\MockServer;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class Factory
@@ -44,11 +43,10 @@ class Factory
      */
     public static function getLastRequest(): Request
     {
-        $serialized = file_get_contents(
-            MockServerConfig::getLogsPath().'/'.MockServer::REQUEST_FILE
-        );
+        $requestPath = MockServerConfig::getLogsPath().'/'.MockServer::REQUEST_FILE;
+        $serialized  = file_get_contents($requestPath);
         if (empty($serialized)) {
-            throw new \RuntimeException('request log file is empty');
+            throw new \RuntimeException('request log file ['.$requestPath.'] is empty');
         }
 
         return unserialize($serialized, ['allowed_classes' => [Request::class]]);

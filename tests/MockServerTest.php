@@ -75,7 +75,7 @@ class MockServerTest extends TestCase
             ]
         );
         $this->assertEquals(
-            'attachment; filename="downloadfile.extension"',
+            'attachment; filename=downloadfile.extension',
             current($response->getHeader('Content-Disposition'))
         );
         rewind($buffer);
