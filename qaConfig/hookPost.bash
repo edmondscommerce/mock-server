@@ -13,7 +13,7 @@ $(hostname) $0 $@
 "
 
 echo "Ensuring any child processes are killed"
-[[ -z "$(jobs -p)" ]] || kill $(jobs -p)
+pkill -f 'router[.]php'
 
 echo "
 ===========================================
