@@ -11,15 +11,13 @@ echo "
 $(hostname) $0 $@
 ===========================================
 "
-rm -f composer.lock
-gitBranch=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
-export gitBranch
-git checkout $gitBranch
-composer install
-git checkout HEAD composer.lock
+export phpqaQuickTests=0
+export phpUnitQuickTests=0
+export phpUnitCoverage=${phpunitCoverage:-0}
+export CI=true
 
-
-mkdir -p $DIR/cache/qa && chmod 777 $DIR/cache/qa
+# run the QA pipeline, echo tee to stdout and also to log file
+bin/qa |& tee var/qa/ci.log
 
 echo "
 ===========================================
