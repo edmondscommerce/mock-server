@@ -314,12 +314,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/edmondscommerce/phpqa.git",
-                "reference": "18db106989af3b4034de439eea3b49cef539f20c"
+                "reference": "3470bebf7924abc40cf2f91531ddafbad1d34e7c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/edmondscommerce/phpqa/zipball/18db106989af3b4034de439eea3b49cef539f20c",
-                "reference": "18db106989af3b4034de439eea3b49cef539f20c",
+                "url": "https://api.github.com/repos/edmondscommerce/phpqa/zipball/3470bebf7924abc40cf2f91531ddafbad1d34e7c",
+                "reference": "3470bebf7924abc40cf2f91531ddafbad1d34e7c",
                 "shasum": ""
             },
             "require": {
@@ -327,10 +327,10 @@
                 "infection/infection": "^0.8",
                 "jakub-onderka/php-console-highlighter": "^0.3.2",
                 "jakub-onderka/php-parallel-lint": "~1",
-                "php": "~7",
+                "php": "~7.1",
                 "phploc/phploc": "^4.0",
                 "phpmd/phpmd": "^2.6",
-                "phpstan/phpstan-shim": "@stable",
+                "phpstan/phpstan-shim": "^0.9.2",
                 "phpstan/phpstan-strict-rules": "^0.9.0",
                 "phpunit/php-invoker": "^2.0",
                 "phpunit/phpunit": "~6 || ~7",
@@ -363,7 +363,7 @@
                 "MIT"
             ],
             "description": "Simple PHP QA pipeline and scripts. Largely just a collection of dependencies with configuration and scripts to run them together",
-            "time": "2018-07-10T08:46:09+00:00"
+            "time": "2018-07-10T15:24:31+00:00"
         },
         {
             "name": "funkyproject/reflection-file",
