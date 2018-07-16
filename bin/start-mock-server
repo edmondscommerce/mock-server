@@ -52,6 +52,12 @@ then
     background="false"
 fi
 
+xdebug="false"
+if [[ $@[*] == *xdebug* ]]
+then
+    xdebug="true"
+fi
+
 commandToExecute="$(php -r "$( cat <<PHP
 declare(strict_types=1);
 
@@ -59,7 +65,7 @@ require '$autoloadPath';
 
 use EdmondsCommerce\MockServer\Factory;
 
-echo Factory::getMockServer()->getStartCommand($background);
+echo Factory::getMockServer()->getStartCommand($background, $xdebug);
 PHP
     )"
 )"

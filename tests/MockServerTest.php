@@ -19,6 +19,8 @@ class MockServerTest extends TestCase
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @skip
      * @throws \Exception
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function testItWillHandleARoutingFile()
     {
@@ -26,13 +28,14 @@ class MockServerTest extends TestCase
 
         $client   = new Client();
         $response = $client->request('GET', $url);
-        $html     = $response->getBody(true);
+        $html     = $response->getBody();
 
         $this->assertEquals('Routed', $html);
     }
 
     /**
      * @throws \Exception
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function testItWillHandleFriendlyUrls()
     {
@@ -41,7 +44,7 @@ class MockServerTest extends TestCase
 
         $client   = new Client();
         $response = $client->request('GET', $url);
-        $html     = $response->getBody(true);
+        $html     = $response->getBody();
 
         $this->assertEquals('Admin Login', $html);
     }

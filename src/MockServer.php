@@ -67,7 +67,7 @@ class MockServer
             throw new \RuntimeException('Htdocs folder does not exist: "'.$this->htdocsPath.'"');
         }
         $this->ipAddress = trim($ipAddress ?? MockServerConfig::DEFAULT_IP);
-        $this->port = $port ?? MockServerConfig::DEFAULT_PORT;
+        $this->port      = $port ?? MockServerConfig::DEFAULT_PORT;
         $this->clearLogs();
     }
 
@@ -98,29 +98,49 @@ class MockServer
     }
 
     /**
+     * Get the Server start command
+     * - Supports running in the background (default) or in the foreground
+     * - Supports running without Xdebug (default) or with Xdebug enabled allowing you to debug the mock server itself
+     *
      * @param bool $background
+     *
+     * @param bool $xdebug
      *
      * @return string
      * @throws \Exception
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function getStartCommand(bool $background = true): string
+    public function getStartCommand(bool $background = true, $xdebug = false): string
     {
-        $logFilePath = self::getLogsPath().'/'.self::LOG_FILE;
-        $nohup = '';
-        $detatch = '';
+        $logFilePath      = self::getLogsPath().'/'.self::LOG_FILE;
+        $nohup            = '';
+        $detatch          = '';
+        $noXdebugFunction = '';
+        $iniPathConfig    = '';
         if (true === $background) {
-            $nohup = ' nohup ';
+            $nohup   = ' nohup ';
             $detatch = ' > \''.$logFilePath.'\' 2>&1 &';
         }
+        if (true !== $xdebug) {
+            $iniFile       = '/tmp/phpNoXdebug.ini';
+            $iniPathConfig = ' -n -c "'.$iniFile.'"';
+            shell_exec(
+                "php -i | grep '\.ini' "
+                ."| grep -o -e '\(/[a-z0-9._-]\+\)\+\.ini' "
+                .'| grep -v xdebug '
+                ."| xargs awk 'FNR==1{print \"\"}1' > $iniFile"
+            );
+        }
 
-        return 'cd '.$this->htdocsPath.';'
-            .$nohup
-            .' php '
-            .' -d error_reporting=E_ALL'
-            .' -d error_log=\''.$logFilePath.'\''
-            .' -S '.$this->ipAddress.':'.$this->port.' '.$this->routerPath
-            .$detatch;
+        return $noXdebugFunction
+               .'cd '.$this->htdocsPath.';'
+               .$nohup
+               .'php'
+               .$iniPathConfig
+               .' -d error_reporting=E_ALL'
+               .' -d error_log=\''.$logFilePath.'\''
+               .' -S '.$this->ipAddress.':'.$this->port.' '.$this->routerPath
+               .$detatch;
     }
 
 
@@ -128,10 +148,13 @@ class MockServer
      * Start the mock web server
      *
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     * @param bool $xdebug
+     *
      * @return bool
      * @throws \Exception
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
-    public function startServer(): bool
+    public function startServer(bool $xdebug = false): bool
     {
         //Stop the server if it is already running
         if ($this->isServerRunning()) {
@@ -139,13 +162,13 @@ class MockServer
         }
         $this->clearLogs();
 
-        $startCommand = $this->getStartCommand();
+        $startCommand = $this->getStartCommand(true, $xdebug);
 
         exec($startCommand, $commandOutput, $exitCode);
 
         //Sleep to allow the web server to start, need to keep this as low as we can to ensure tests don't take forever
         //Maximum attempts to try and connect before we fail out
-        $totalAttempts = 0;
+        $totalAttempts      = 0;
         $maxTimeoutAttempts = 5;
         do {
             usleep(100000); // 0.1s
@@ -160,7 +183,7 @@ class MockServer
     public function clearLogs(): void
     {
         $logsPath = self::getLogsPath();
-        $files = [
+        $files    = [
             self::LOG_FILE,
             self::REQUEST_FILE,
             self::RESPONSE_FILE,
