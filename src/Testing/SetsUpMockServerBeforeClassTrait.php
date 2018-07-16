@@ -38,7 +38,7 @@ trait SetsUpMockServerBeforeClassTrait
     protected static function setupMockServer()
     {
         static::$mockServer = Factory::getMockServer();
-        static::$mockServer->startServer();
+        static::$mockServer->startServer(false);
     }
 
     protected static function tearDownMockServer()
