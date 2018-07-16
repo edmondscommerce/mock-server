@@ -98,6 +98,10 @@ class MockServer
     }
 
     /**
+     * Get the Server start command
+     * - Supports running in the background (default) or in the foreground
+     * - Supports running without Xdebug (default) or with Xdebug enabled allowing you to debug the mock server itself
+     *
      * @param bool $background
      *
      * @param bool $xdebug
@@ -113,7 +117,6 @@ class MockServer
         $detatch          = '';
         $noXdebugFunction = '';
         $iniPathConfig    = '';
-        $phpCmd           = 'php';
         if (true === $background) {
             $nohup   = ' nohup ';
             $detatch = ' > \''.$logFilePath.'\' 2>&1 &';
@@ -149,6 +152,7 @@ class MockServer
      *
      * @return bool
      * @throws \Exception
+     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
      */
     public function startServer(bool $xdebug = false): bool
     {
