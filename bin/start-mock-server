@@ -25,10 +25,10 @@ function findAutoload(){
 
 autoloadPath="$(findAutoload)"
 
-if [[ -z $MockServer_Ip ]]
-then
-    export MockServer_Ip="$(ip route get 1 | awk '{print $NF;exit}')"
-fi
+#if [[ -z $MockServer_Ip ]]
+#then
+#    export MockServer_Ip="$(ip route get 1 | awk '{print $NF;exit}')"
+#fi
 
 echo "Starting server on:"
 
