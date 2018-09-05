@@ -33,14 +33,18 @@ class MockServerConfig
     public const DEFAULT_LOGS_PATH = __DIR__ . '/../var/logs/';
 
 
+    /**
+     * @return string
+     * @throws MockServerException
+     */
     public static function getIp(): string
     {
-        $ip = $_SERVER[self::KEY_IP] ?? self::DEFAULT_IP;
-        if (self::IP_CALCULATE_NETWORK_IP === $ip) {
-            $ip = self::calculateMockServerIp();
+        $mockServerIp = $_SERVER[self::KEY_IP] ?? self::DEFAULT_IP;
+        if (self::IP_CALCULATE_NETWORK_IP === $mockServerIp) {
+            $mockServerIp = self::calculateMockServerIp();
         }
 
-        return $ip;
+        return $mockServerIp;
     }
 
     public static function calculateMockServerIp(): string
