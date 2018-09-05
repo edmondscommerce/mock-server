@@ -13,25 +13,51 @@ use EdmondsCommerce\MockServer\Exception\MockServerException;
  */
 class MockServerConfig
 {
-    const KEY_IP     = 'MockServer_Ip';
-    const DEFAULT_IP = '0.0.0.0';
+    public const KEY_IP                  = 'MockServer_Ip';
+    public const IP_LOCALHOST            = '0.0.0.0';
+    public const IP_CALCULATE_NETWORK_IP = 'calculate';
+    public const IP_CALCULATE_CMD        = 'ip route get 8.8.8.8 | '
+                                           . 'awk \'{ for (nn=1;nn<=NF;nn++) if ($nn~"src") print $(nn+1) }\' ';
+    public const DEFAULT_IP              = self::IP_LOCALHOST;
 
-    const KEY_PORT     = 'MockServer_Port';
-    const DEFAULT_PORT = 8080;
+    public const KEY_PORT     = 'MockServer_Port';
+    public const DEFAULT_PORT = 8080;
 
-    const KEY_ROUTER_PATH     = 'MockServer_RouterPath';
-    const DEFAULT_ROUTER_PATH = '/tests/MockServer/router.php';
+    public const KEY_ROUTER_PATH     = 'MockServer_RouterPath';
+    public const DEFAULT_ROUTER_PATH = '/tests/MockServer/router.php';
 
-    const KEY_HTDOCS_PATH     = 'MockServer_HtdocsPath';
-    const DEFAULT_HTDOCS_PATH = '/tests/MockServer/htdocs';
+    public const KEY_HTDOCS_PATH     = 'MockServer_HtdocsPath';
+    public const DEFAULT_HTDOCS_PATH = '/tests/MockServer/htdocs';
 
-    const KEY_LOGS_PATH     = 'MockServer_LogsPath';
-    const DEFAULT_LOGS_PATH = __DIR__.'/../var/logs/';
+    public const KEY_LOGS_PATH     = 'MockServer_LogsPath';
+    public const DEFAULT_LOGS_PATH = __DIR__ . '/../var/logs/';
 
 
     public static function getIp(): string
     {
-        return $_SERVER[self::KEY_IP] ?? self::DEFAULT_IP;
+        $ip = $_SERVER[self::KEY_IP] ?? self::DEFAULT_IP;
+        if (self::IP_CALCULATE_NETWORK_IP === $ip) {
+            $ip = self::calculateMockServerIp();
+        }
+
+        return $ip;
+    }
+
+    public static function calculateMockServerIp(): string
+    {
+        exec(
+            self::IP_CALCULATE_CMD,
+            $output,
+            $exitCode
+        );
+        if (0 !== $exitCode) {
+            throw new MockServerException(
+                'Failed getting mock server IP, got exit code ' . $exitCode . ' and output: '
+                . "\n" . implode("\n", $output)
+            );
+        }
+
+        return array_pop($output);
     }
 
     public static function getPort(): int
@@ -41,17 +67,7 @@ class MockServerConfig
 
     public static function getRouterPath(): string
     {
-        return $_SERVER[self::KEY_ROUTER_PATH] ?? self::getPathToProjectRoot().'/'.self::DEFAULT_ROUTER_PATH;
-    }
-
-    public static function getHtdocsPath(): string
-    {
-        return $_SERVER[self::KEY_HTDOCS_PATH] ?? self::getPathToProjectRoot().'/'.self::DEFAULT_HTDOCS_PATH;
-    }
-
-    public static function getLogsPath(): string
-    {
-        return $_SERVER[self::KEY_LOGS_PATH] ?? self::DEFAULT_LOGS_PATH;
+        return $_SERVER[self::KEY_ROUTER_PATH] ?? self::getPathToProjectRoot() . '/' . self::DEFAULT_ROUTER_PATH;
     }
 
     /**
@@ -65,7 +81,17 @@ class MockServerConfig
 
             return \dirname($reflection->getFileName(), 3);
         } catch (\Exception $e) {
-            throw new MockServerException('Exception in '.__METHOD__, $e->getCode(), $e);
+            throw new MockServerException('Exception in ' . __METHOD__, $e->getCode(), $e);
         }
+    }
+
+    public static function getHtdocsPath(): string
+    {
+        return $_SERVER[self::KEY_HTDOCS_PATH] ?? self::getPathToProjectRoot() . '/' . self::DEFAULT_HTDOCS_PATH;
+    }
+
+    public static function getLogsPath(): string
+    {
+        return $_SERVER[self::KEY_LOGS_PATH] ?? self::DEFAULT_LOGS_PATH;
     }
 }
