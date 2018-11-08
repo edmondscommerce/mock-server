@@ -39,6 +39,7 @@ class StaticRouter
         'gzip',
         'htm',
         'html',
+        'ico',
         'ics',
         'jpe',
         'jpeg',
