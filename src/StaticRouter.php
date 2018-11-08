@@ -45,6 +45,7 @@ class StaticRouter
         'jpeg',
         'jpg',
         'js',
+        'json',
         'kml',
         'kmz',
         'm4a',
