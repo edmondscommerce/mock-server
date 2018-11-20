@@ -4,6 +4,7 @@ namespace EdmondsCommerce\MockServer;
 
 use Composer\Autoload\ClassLoader;
 use EdmondsCommerce\MockServer\Exception\MockServerException;
+use JakubOnderka\PhpParallelLint\RunTimeException;
 
 /**
  * Class MockServerConfig
@@ -83,7 +84,12 @@ class MockServerConfig
         try {
             $reflection = new \ReflectionClass(ClassLoader::class);
 
-            return \dirname($reflection->getFileName(), 3);
+            $fileName = $reflection->getFileName();
+            if($fileName === false)
+            {
+                throw new RunTimeException('Can not get file name of core PHP class');
+            }
+            return \dirname($fileName, 3);
         } catch (\Exception $e) {
             throw new MockServerException('Exception in ' . __METHOD__, $e->getCode(), $e);
         }

@@ -17,25 +17,23 @@ class FactoryTest extends TestCase
     /**
      * @throws \Exception
      */
-    public function testCanGetMockServer()
+    public function testCanGetMockServer():void
     {
         Factory::getMockServer();
-        $this->assertTrue(true);
+
+        $this->addToAssertionCount(1);
     }
 
     /**
      * @throws \Exception
      */
-    public function testCanGetstaticRouter()
+    public function testCanGetstaticRouter():void
     {
         Factory::getStaticRouter();
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
-    /**
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    public function testCanGetLastRequest()
+    public function testCanGetLastRequest():void
     {
         $mockServer = Factory::getMockServer();
         $mockServer->startServer();
@@ -47,7 +45,7 @@ class FactoryTest extends TestCase
     }
 
 
-    public function testItWillErrorOnWhenTryingToGetTheRequestBeforeReceivingARequest()
+    public function testItWillErrorOnWhenTryingToGetTheRequestBeforeReceivingARequest():void
     {
         $this->expectException(\Exception::class);
         $this->expectExceptionMessageRegExp('%request log file .+? is empty%');

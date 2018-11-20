@@ -26,12 +26,14 @@
     },
     "require": {
         "php": "~7.1",
+        "ext-fileinfo": "*",
         "symfony/http-foundation": "~4",
         "symfony/routing": "~4"
     },
     "require-dev": {
         "edmondscommerce/phpqa": "^2.0",
-        "guzzlehttp/guzzle": "~6"
+        "guzzlehttp/guzzle": "~6",
+        "phpstan/phpstan-phpunit": "^0.10.0"
     },
     "bin": [
         "bin/start-mock-server",

@@ -19,12 +19,12 @@ class StaticRouterTest extends TestCase
      */
     private $router;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->router = Factory::getStaticRouter();
     }
 
-    public function testItWillReturnTheNotFoundPageWhenNotFound()
+    public function testItWillReturnTheNotFoundPageWhenNotFound(): void
     {
         $this->router->setNotFound('Not Found');
         $result = $this->router->run('/does-not-exist');
@@ -37,7 +37,7 @@ class StaticRouterTest extends TestCase
         $this->assertEquals('Not Found', $result->getContent());
     }
 
-    public function testItWillMatchARoute()
+    public function testItWillMatchARoute(): void
     {
         $this->router->addRoute('/test', 'Found it');
         $result = $this->router->run('/test');
@@ -51,7 +51,7 @@ class StaticRouterTest extends TestCase
     /**
      * @throws \Exception
      */
-    public function testItWillDetectTheRequestUri()
+    public function testItWillDetectTheRequestUri(): void
     {
         //Fake the server request
         $_SERVER['REQUEST_URI'] = '/test';
@@ -70,14 +70,15 @@ class StaticRouterTest extends TestCase
     /**
      * @throws \Exception
      */
-    public function testItEnforcesCallbackReturnType()
+    public function testItEnforcesCallbackReturnType(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $_SERVER['REQUEST_URI'] = '/some-callback';
 
-        $this->router->addCallbackRoute('/bad-return-type', function () {
-            return 'this function does not have the correct return type';
-        });
+        $this->router->addCallbackRoute('/bad-return-type',
+            function () {
+                return 'this function does not have the correct return type';
+            });
 
         $this->router->run();
     }
@@ -85,13 +86,14 @@ class StaticRouterTest extends TestCase
     /**
      * @throws \Exception
      */
-    public function testItCanHandleCallbackRoutes()
+    public function testItCanHandleCallbackRoutes(): void
     {
         $_SERVER['REQUEST_URI'] = '/some-callback';
 
-        $this->router->addCallbackRoute('/some-callback', function (): Response {
-            return new Response('This is a callback result');
-        });
+        $this->router->addCallbackRoute('/some-callback',
+            function (): Response {
+                return new Response('This is a callback result');
+            });
 
         $result = $this->router->run();
         if (null === $result) {
@@ -104,19 +106,19 @@ class StaticRouterTest extends TestCase
     /**
      * @throws \Exception
      */
-    public function testItWillCreateRequestFilesOnRequest()
+    public function testItWillCreateRequestFilesOnRequest(): void
     {
         $logDir = MockServer::getLogsPath();
 
         $this->router->addRoute('/', 'Test');
         $this->router->run('/');
 
-        $this->assertFileExists($logDir.'/'.MockServer::REQUEST_FILE);
+        $this->assertFileExists($logDir . '/' . MockServer::REQUEST_FILE);
     }
 
-    public function testStaticRouteSetsContentType()
+    public function testStaticRouteSetsContentType(): void
     {
-        $jsonFile               = __DIR__.'/MockServer/files/jsonfile.json';
+        $jsonFile               = __DIR__ . '/MockServer/files/jsonfile.json';
         $_SERVER['REQUEST_URI'] = '/jsonfile.json';
         $this->router->addStaticRoute(
             '/jsonfile.json',

@@ -22,12 +22,15 @@ trait SetsUpMockServerBeforeClassTrait
     /**
      * @throws \Exception
      */
-    public static function setupBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         static::setupMockServer();
     }
 
-    public static function tearDownAfterClass()
+    /**
+     * @throws \Exception
+     */
+    public static function tearDownAfterClass(): void
     {
         static::tearDownMockServer();
     }
@@ -35,13 +38,16 @@ trait SetsUpMockServerBeforeClassTrait
     /**
      * @throws \Exception
      */
-    protected static function setupMockServer()
+    protected static function setupMockServer(): void
     {
         static::$mockServer = Factory::getMockServer();
         static::$mockServer->startServer(false);
     }
 
-    protected static function tearDownMockServer()
+    /**
+     * @throws \Exception
+     */
+    protected static function tearDownMockServer(): void
     {
         static::$mockServer->stopServer();
     }

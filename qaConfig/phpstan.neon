@@ -1,6 +1,10 @@
 includes:
-    - ../vendor/edmondscommerce/phpqa/configDefaults/generic/phpstan.neon
+    - ../vendor/phpstan/phpstan-phpunit/rules.neon
+    - ../vendor/phpstan/phpstan-phpunit/extension.neon
+    - ../vendor/phpstan/phpstan-strict-rules/rules.neon
 parameters:
-	excludes_analyse:
-		- src/include/routerBottom.php
-		- tests/MockServer/router.php
+    ignoreErrors:
+        - '#Dynamic call to static method PHPUnit[a-zA-Z0-9\\_]#'
+    excludes_analyse:
+        - src/include/routerBottom.php
+        - tests/MockServer/router.php
