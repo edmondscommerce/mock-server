@@ -43,7 +43,7 @@ The default values are fairly sensible though. Based upon the project root, the 
 
 An example of a basic router set up can be found in [router.php](./tests/MockServer/router.php)
 
-The router file should contain an instance of the `\EdmondsCommerce\MockServer\StaticRouter` which is a wrapper around
+The router file should contain an instance of the `\EdmondsCommerce\MockServer\Routing\StaticRouter` which is a wrapper around
 Symfony's router class. The file should load the Composer autoloader and create the static router before registering routes for different URIs.
 
 The router supports static file routes, callback routes and text routes.
