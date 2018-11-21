@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace EdmondsCommerce\MockServer;
+namespace EdmondsCommerce\MockServer\Routing;
 
 use EdmondsCommerce\MockServer\Exception\MockServerException;
 use EdmondsCommerce\MockServer\Exception\RouterException;
+use EdmondsCommerce\MockServer\MockServer;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -92,7 +93,7 @@ class StaticRouter
     /**
      * @var string
      */
-    private $notFoundResponse;
+    private $notFoundResponse = self::NOT_FOUND;
 
     /**
      * @var string
@@ -104,14 +105,43 @@ class StaticRouter
      */
     private $verbose = false;
 
-    public function __construct(string $htdocsPath)
+    /**
+     * StaticRouter constructor.
+     *
+     * @param string          $publicDir
+     * @param RouteCollection $routes
+     *
+     * @throws MockServerException
+     */
+    public function __construct(string $publicDir, RouteCollection $routes)
     {
-        $this->routes = new RouteCollection();
-        $this->setNotFound(static::NOT_FOUND);
-        $this->htdocsPath = $htdocsPath;
+        $this->routes     = $routes;
+        $this->htdocsPath = $publicDir;
+
+        $this->checkPublicDir();
+    }
+
+    /**
+     * @throws MockServerException
+     */
+    private function checkPublicDir(): void
+    {
         if (!is_dir($this->htdocsPath)) {
-            throw new \RuntimeException('htdocs path does not exist: ' . $this->htdocsPath);
+            throw new MockServerException('htdocs path does not exist: ' . $this->htdocsPath);
         }
+    }
+
+    /**
+     * @param Route $route
+     *
+     * @return StaticRouter
+     */
+    public function addRoute(Route $route): StaticRouter
+    {
+        //TODO: Prevent route name collision
+        $this->routes->add($route->getPath(), $route);
+
+        return $this;
     }
 
     /**
@@ -295,9 +325,7 @@ class StaticRouter
         if ($this->isStaticAsset($request)) {
             return null;
         }
-        $response = $this->getResponse($request);
-
-        return $response;
+        return $this->getResponse($request);
     }
 
     /**
