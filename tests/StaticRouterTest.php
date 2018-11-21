@@ -2,6 +2,7 @@
 
 namespace EdmondsCommerce\MockServer;
 
+use EdmondsCommerce\MockServer\Routing\StaticRouter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 

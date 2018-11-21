@@ -2,7 +2,7 @@
 
 namespace EdmondsCommerce\MockServer;
 
-use EdmondsCommerce\MockServer\Testing\SetsUpMockServerBeforeClassTrait;
+use EdmondsCommerce\MockServer\Testing\MockServerTrait;
 use GuzzleHttp\Client;
 use JakubOnderka\PhpParallelLint\RunTimeException;
 use PHPUnit\Framework\TestCase;
@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
  */
 class MockServerTest extends TestCase
 {
-    use SetsUpMockServerBeforeClassTrait;
+    use MockServerTrait;
 
     /**
      * @SuppressWarnings(PHPMD.StaticAccess)

@@ -262,20 +262,6 @@ class StaticRouter
     }
 
     /**
-     * @param string $uri
-     * @param string $response
-     * @param array  $defaults
-     *
-     * @return StaticRouter
-     */
-    public function addRoute(string $uri, string $response, array $defaults = []): StaticRouter
-    {
-        $this->routes->add($uri, new Route($uri, array_merge(['response' => $response], $defaults)));
-
-        return $this;
-    }
-
-    /**
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @param Request $request
      *

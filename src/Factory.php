@@ -2,6 +2,8 @@
 
 namespace EdmondsCommerce\MockServer;
 
+use EdmondsCommerce\MockServer\Routing\RouterFactory;
+use EdmondsCommerce\MockServer\Routing\StaticRouter;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -29,12 +31,11 @@ class Factory
     /**
      * @return StaticRouter
      * @throws \RuntimeException
+     * @throws Exception\MockServerException
      */
     public static function getStaticRouter(): StaticRouter
     {
-        return new StaticRouter(
-            MockServerConfig::getHtdocsPath()
-        );
+        return (new RouterFactory())->make(MockServerConfig::getHtdocsPath());
     }
 
     /**
@@ -43,15 +44,14 @@ class Factory
      */
     public static function getLastRequest(): Request
     {
-        $requestPath = MockServerConfig::getLogsPath().'/'.MockServer::REQUEST_FILE;
+        $requestPath = MockServerConfig::getLogsPath() . '/' . MockServer::REQUEST_FILE;
         $serialized  = file_get_contents($requestPath);
         if ($serialized === '') {
-            throw new \RuntimeException('request log file ['.$requestPath.'] is empty');
+            throw new \RuntimeException('request log file [' . $requestPath . '] is empty');
         }
 
-        if($serialized === false)
-        {
-            throw new \RuntimeException('Could not read last request: '.$requestPath);
+        if ($serialized === false) {
+            throw new \RuntimeException('Could not read last request: ' . $requestPath);
         }
 
         return unserialize($serialized, ['allowed_classes' => [Request::class]]);
