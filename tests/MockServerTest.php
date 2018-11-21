@@ -4,6 +4,7 @@ namespace EdmondsCommerce\MockServer;
 
 use EdmondsCommerce\MockServer\Testing\SetsUpMockServerBeforeClassTrait;
 use GuzzleHttp\Client;
+use JakubOnderka\PhpParallelLint\RunTimeException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -18,11 +19,8 @@ class MockServerTest extends TestCase
     /**
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @skip
-     * @throws \Exception
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function testItWillHandleARoutingFile()
+    public function testItWillHandleARoutingFile():void
     {
         $url = static::$mockServer->getUrl('/routed');
 
@@ -33,11 +31,7 @@ class MockServerTest extends TestCase
         $this->assertEquals('Routed', $html);
     }
 
-    /**
-     * @throws \Exception
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     */
-    public function testItWillHandleFriendlyUrls()
+    public function testItWillHandleFriendlyUrls():void
     {
 
         $url = static::$mockServer->getUrl('/admin');
@@ -53,8 +47,7 @@ class MockServerTest extends TestCase
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @throws \Exception
      */
-
-    public function testItWillClearTheRequestOnStart()
+    public function testItWillClearTheRequestOnStart():void
     {
         $requestFile = MockServer::getLogsPath().'/'.MockServer::REQUEST_FILE;
         touch($requestFile);
@@ -64,7 +57,7 @@ class MockServerTest extends TestCase
         $this->assertEmpty($contents, 'request file contains: '.$contents);
     }
 
-    public function testItServesDownloadRoutes()
+    public function testItServesDownloadRoutes():void
     {
         $url      = static::$mockServer->getUrl('/download');
         $client   = new Client();
@@ -81,14 +74,22 @@ class MockServerTest extends TestCase
             'attachment; filename=downloadfile.extension',
             current($response->getHeader('Content-Disposition'))
         );
+        if(!is_resource($buffer))
+        {
+            throw new RunTimeException('Expected a resource');
+        }
         rewind($buffer);
         $contents = fread($buffer, 9999);
+        if(!is_string($contents))
+        {
+            throw new RunTimeException('Error reading from resource');
+        }
         $this->assertNotEmpty($contents);
         $this->assertEquals('this is a download file', trim($contents));
         fclose($buffer);
     }
 
-    public function testItServesStaticJsonRoutes()
+    public function testItServesStaticJsonRoutes():void
     {
         $jsonFile = __DIR__.'/MockServer/files/jsonfile.json';
         $url      = static::$mockServer->getUrl('jsonfile.json');

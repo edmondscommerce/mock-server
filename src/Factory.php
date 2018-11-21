@@ -45,8 +45,13 @@ class Factory
     {
         $requestPath = MockServerConfig::getLogsPath().'/'.MockServer::REQUEST_FILE;
         $serialized  = file_get_contents($requestPath);
-        if (empty($serialized)) {
+        if ($serialized === '') {
             throw new \RuntimeException('request log file ['.$requestPath.'] is empty');
+        }
+
+        if($serialized === false)
+        {
+            throw new \RuntimeException('Could not read last request: '.$requestPath);
         }
 
         return unserialize($serialized, ['allowed_classes' => [Request::class]]);

@@ -2,6 +2,7 @@
 
 namespace EdmondsCommerce\MockServer;
 
+use EdmondsCommerce\MockServer\Exception\MockServerException;
 use EdmondsCommerce\MockServer\Exception\RouterException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -109,7 +110,7 @@ class StaticRouter
         $this->setNotFound(static::NOT_FOUND);
         $this->htdocsPath = $htdocsPath;
         if (!is_dir($this->htdocsPath)) {
-            throw new \RuntimeException('htdocs path does not exist: '.$this->htdocsPath);
+            throw new \RuntimeException('htdocs path does not exist: ' . $this->htdocsPath);
         }
     }
 
@@ -129,15 +130,20 @@ class StaticRouter
      * @param string $file
      *
      * @return StaticRouter
-     * @throws \RunTimeException
+     * @throws MockServerException
      */
     public function setNotFoundStatic(string $file): StaticRouter
     {
         if (!file_exists($file)) {
-            throw new \RuntimeException('Could not find 404 file: '.$file);
+            throw new MockServerException('Could not find 404 file: ' . $file);
         }
 
-        return $this->setNotFound(file_get_contents($file));
+        $fileContents = file_get_contents($file);
+        if ($fileContents === false) {
+            throw new MockServerException('Could not read 404 file at: ' . $file);
+        }
+
+        return $this->setNotFound($fileContents);
     }
 
     /**
@@ -154,17 +160,16 @@ class StaticRouter
     public function addStaticRoute(string $uri, string $fileResponse, ?string $contentType = null): StaticRouter
     {
         if (!file_exists($fileResponse)) {
-            throw new \RuntimeException('Could not find file '.$fileResponse);
+            throw new \RuntimeException('Could not find file ' . $fileResponse);
         }
         $contentType = $contentType ?? mime_content_type($fileResponse);
-        $this->addCallbackRoute(
-            $uri,
+        $this->addCallbackRoute($uri,
             function (Request $request) use ($fileResponse, $contentType): Response {
 
                 $response = new Response(file_get_contents($fileResponse));
                 $response->prepare($request);
-                $response->headers->set('Content-Type', $contentType);
-                $response->headers->set('Content-Length', filesize($fileResponse));
+                $response->headers->set('Content-Type', (string)$contentType);
+                $response->headers->set('Content-Length', (string)filesize($fileResponse));
 
                 return $response;
             }
@@ -185,8 +190,8 @@ class StaticRouter
         $returnType = (string)(new \ReflectionFunction($closure))->getReturnType();
         if ($returnType !== Response::class) {
             throw new \InvalidArgumentException(
-                'invalid return type  "'.$returnType
-                .'" - closure must return a "'.Response::class.'" (and type hint for that)'
+                'invalid return type  "' . $returnType
+                . '" - closure must return a "' . Response::class . '" (and type hint for that)'
             );
         }
         $this->routes->add(
@@ -256,7 +261,7 @@ class StaticRouter
         try {
             return $matcher->match($request->getRequestUri());
         } catch (ResourceNotFoundException $e) {
-            throw new RouterException('Could not find route for '.$request->getRequestUri());
+            throw new RouterException('Could not find route for ' . $request->getRequestUri());
         }
     }
 
@@ -305,7 +310,7 @@ class StaticRouter
     public function isStaticAsset(Request $request): bool
     {
         $uri = $request->getRequestUri();
-        if (file_exists($this->htdocsPath.'/'.$uri)
+        if (file_exists($this->htdocsPath . '/' . $uri)
             && \in_array(
                 \pathinfo($uri, PATHINFO_EXTENSION),
                 self::STATIC_EXTENSIONS_SUPPORTED,
@@ -350,9 +355,9 @@ class StaticRouter
      *
      * @throws \Exception
      */
-    protected function logRequest(Request $request)
+    protected function logRequest(Request $request): void
     {
-        $requestPath = MockServer::getLogsPath().'/'.MockServer::REQUEST_FILE;
+        $requestPath = MockServer::getLogsPath() . '/' . MockServer::REQUEST_FILE;
         $output      = [
             'post'   => $request->request->all(),
             'get'    => $request->query->all(),
@@ -361,11 +366,11 @@ class StaticRouter
         ];
         $uri         = $request->getRequestUri();
         if (true === $this->verbose) {
-            file_put_contents('php://stderr', "\nRequest: $uri\n".var_export($output, true));
+            file_put_contents('php://stderr', "\nRequest: $uri\n" . var_export($output, true));
         }
 
         if (file_put_contents($requestPath, serialize($request)) === false) {
-            throw new \RuntimeException('Could not write request output to '.$requestPath);
+            throw new \RuntimeException('Could not write request output to ' . $requestPath);
         }
     }
 

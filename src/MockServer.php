@@ -2,6 +2,8 @@
 
 namespace EdmondsCommerce\MockServer;
 
+use EdmondsCommerce\MockServer\Exception\MockServerException;
+
 /**
  * Class MockServer
  *
@@ -58,13 +60,19 @@ class MockServer
         int $port = null
     ) {
         if (!is_file($routerPath)) {
-            throw new \RuntimeException('Router file does not exist: "'.$routerPath.'"');
+            throw new \RuntimeException('Router file does not exist: "' . $routerPath . '"');
         }
-        $this->routerPath = realpath($routerPath);
+
+        $realRouterPath = realpath($routerPath);
+        if ($realRouterPath === false) {
+            throw new MockServerException('Could not find router, file does not exist: ' . $realRouterPath);
+        }
+        $this->routerPath = $realRouterPath;
+
 
         $this->htdocsPath = trim($htdocsPath ?: \dirname($this->routerPath));
         if (!is_dir($this->htdocsPath)) {
-            throw new \RuntimeException('Htdocs folder does not exist: "'.$this->htdocsPath.'"');
+            throw new \RuntimeException('Htdocs folder does not exist: "' . $this->htdocsPath . '"');
         }
         $this->ipAddress = trim($ipAddress ?? MockServerConfig::DEFAULT_IP);
         $this->port      = $port ?? MockServerConfig::DEFAULT_PORT;
@@ -112,35 +120,35 @@ class MockServer
      */
     public function getStartCommand(bool $background = true, $xdebug = false): string
     {
-        $logFilePath      = self::getLogsPath().'/'.self::LOG_FILE;
+        $logFilePath      = self::getLogsPath() . '/' . self::LOG_FILE;
         $nohup            = '';
         $detatch          = '';
         $noXdebugFunction = '';
         $iniPathConfig    = '';
         if (true === $background) {
             $nohup   = ' nohup ';
-            $detatch = ' > \''.$logFilePath.'\' 2>&1 &';
+            $detatch = ' > \'' . $logFilePath . '\' 2>&1 &';
         }
         if (true !== $xdebug) {
             $iniFile       = '/tmp/phpNoXdebug.ini';
-            $iniPathConfig = ' -n -c "'.$iniFile.'"';
+            $iniPathConfig = ' -n -c "' . $iniFile . '"';
             shell_exec(
                 "php -i | grep '\.ini' "
-                ."| grep -o -e '\(/[a-z0-9._-]\+\)\+\.ini' "
-                .'| grep -v xdebug '
-                ."| xargs awk 'FNR==1{print \"\"}1' > $iniFile"
+                . "| grep -o -e '\(/[a-z0-9._-]\+\)\+\.ini' "
+                . '| grep -v xdebug '
+                . "| xargs awk 'FNR==1{print \"\"}1' > $iniFile"
             );
         }
 
         return $noXdebugFunction
-               .'cd '.$this->htdocsPath.';'
-               .$nohup
-               .'php'
-               .$iniPathConfig
-               .' -d error_reporting=E_ALL'
-               .' -d error_log=\''.$logFilePath.'\''
-               .' -S '.$this->ipAddress.':'.$this->port.' '.$this->routerPath
-               .$detatch;
+               . 'cd ' . $this->htdocsPath . ';'
+               . $nohup
+               . 'php'
+               . $iniPathConfig
+               . ' -d error_reporting=E_ALL'
+               . ' -d error_log=\'' . $logFilePath . '\''
+               . ' -S ' . $this->ipAddress . ':' . $this->port . ' ' . $this->routerPath
+               . $detatch;
     }
 
 
@@ -189,7 +197,7 @@ class MockServer
             self::RESPONSE_FILE,
         ];
         foreach ($files as $file) {
-            file_put_contents($logsPath.$file, '');
+            file_put_contents($logsPath . $file, '');
         }
     }
 
@@ -224,15 +232,18 @@ class MockServer
 
         if ($exitCode !== 0 && count($outputArray) > 1) {
             throw new \RuntimeException(
-                'Unsuccessful exit code returned: '.$exitCode.', output: '
-                .$outputArray
+                'Unsuccessful exit code returned: ' . $exitCode . ', output: '
+                . $outputArray
             );
         }
 
         if (count($outputArray) > 1) {
-            exec('ps $('.$command.')', $psOutput);
+            exec('ps $(' . $command . ')', $psOutput);
             $psOutput = implode("\n", $psOutput);
-            throw new \RuntimeException('Found multiple instances of the PHP server:'.$output."\nps output:".$psOutput);
+            throw new \RuntimeException('Found multiple instances of the PHP server:' .
+                                        $output .
+                                        "\nps output:" .
+                                        $psOutput);
         }
 
         //Not found
@@ -246,7 +257,7 @@ class MockServer
             return (int)$pid;
         }
 
-        throw new \RuntimeException('Could not find PID for PHP Server: '.$output);
+        throw new \RuntimeException('Could not find PID for PHP Server: ' . $output);
     }
 
     /**
@@ -266,7 +277,7 @@ class MockServer
             if (false !== stripos($output, 'no such process')) {
                 return;
             }
-            throw new \RuntimeException('Failed stopping server: '.$output);
+            throw new \RuntimeException('Failed stopping server: ' . $output);
         }
     }
 
@@ -275,12 +286,12 @@ class MockServer
         return sprintf('http://%s:%d', $this->ipAddress, $this->port);
     }
 
-    public function getUrl($uri): string
+    public function getUrl(string $uri): string
     {
         if ('/' !== $uri[0]) {
             $uri = "/$uri";
         }
 
-        return $this->getBaseUrl().$uri;
+        return $this->getBaseUrl() . $uri;
     }
 }
