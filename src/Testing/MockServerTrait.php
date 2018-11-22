@@ -2,7 +2,7 @@
 
 namespace EdmondsCommerce\MockServer\Testing;
 
-use EdmondsCommerce\MockServer\Factory;
+use EdmondsCommerce\MockServer\MockServerFactory;
 use EdmondsCommerce\MockServer\MockServer;
 
 /**
@@ -27,7 +27,7 @@ trait MockServerTrait
      */
     protected function setupMockServer(bool $xdebug = false): void
     {
-        $this->mockServer = Factory::getMockServer();
+        $this->mockServer = MockServerFactory::getServer();
         $this->mockServer->startServer($xdebug);}
 
     /**

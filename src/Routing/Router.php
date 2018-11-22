@@ -22,7 +22,7 @@ use Symfony\Component\Routing\RouteCollection;
  * @package EdmondsCommerce\MockServer
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class StaticRouter
+class Router
 {
     public const NOT_FOUND = 'Not Found';
 
@@ -134,9 +134,9 @@ class StaticRouter
     /**
      * @param Route $route
      *
-     * @return StaticRouter
+     * @return Router
      */
-    public function addRoute(Route $route): StaticRouter
+    public function addRoute(Route $route): Router
     {
         //TODO: Prevent route name collision
         $this->routes->add($route->getPath(), $route);
@@ -147,9 +147,9 @@ class StaticRouter
     /**
      * @param string $response
      *
-     * @return StaticRouter
+     * @return Router
      */
-    public function setNotFound(string $response): StaticRouter
+    public function setNotFound(string $response): Router
     {
         $this->notFoundResponse = $response;
 
@@ -159,10 +159,10 @@ class StaticRouter
     /**
      * @param string $file
      *
-     * @return StaticRouter
+     * @return Router
      * @throws MockServerException
      */
-    public function setNotFoundStatic(string $file): StaticRouter
+    public function setNotFoundStatic(string $file): Router
     {
         if (!file_exists($file)) {
             throw new MockServerException('Could not find 404 file: ' . $file);
@@ -174,91 +174,6 @@ class StaticRouter
         }
 
         return $this->setNotFound($fileContents);
-    }
-
-    /**
-     * @param string      $uri
-     * @param string      $fileResponse
-     *
-     * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
-     *
-     * @param null|string $contentType
-     *
-     * @return StaticRouter
-     * @throws \Exception
-     */
-    public function addStaticRoute(string $uri, string $fileResponse, ?string $contentType = null): StaticRouter
-    {
-        if (!file_exists($fileResponse)) {
-            throw new \RuntimeException('Could not find file ' . $fileResponse);
-        }
-        $contentType = $contentType ?? mime_content_type($fileResponse);
-        $this->addCallbackRoute($uri,
-            function (Request $request) use ($fileResponse, $contentType): Response {
-
-                $response = new Response(file_get_contents($fileResponse));
-                $response->prepare($request);
-                $response->headers->set('Content-Type', (string)$contentType);
-                $response->headers->set('Content-Length', (string)filesize($fileResponse));
-
-                return $response;
-            }
-        );
-
-        return $this;
-    }
-
-    /**
-     * @param string   $uri
-     * @param \Closure $closure - must return a Response object
-     *
-     * @return $this
-     * @throws \Exception
-     */
-    public function addCallbackRoute(string $uri, \Closure $closure)
-    {
-        $returnType = (string)(new \ReflectionFunction($closure))->getReturnType();
-        if ($returnType !== Response::class) {
-            throw new \InvalidArgumentException(
-                'invalid return type  "' . $returnType
-                . '" - closure must return a "' . Response::class . '" (and type hint for that)'
-            );
-        }
-        $this->routes->add(
-            $uri,
-            new Route(
-                $uri,
-                ['_controller' => $closure]
-            )
-        );
-
-        return $this;
-    }
-
-    /**
-     * @param string $uri
-     * @param string $pathToFile
-     *
-     * @return StaticRouter
-     * @throws \Exception
-     */
-    public function addFileDownloadRoute(string $uri, string $pathToFile): StaticRouter
-    {
-        $this->addCallbackRoute(
-            $uri,
-            function (Request $request) use ($pathToFile): Response {
-                $response = new BinaryFileResponse($pathToFile);
-                $response->setContentDisposition(
-                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                    basename($pathToFile)
-                );
-                $response->prepare($request);
-
-                return $response;
-            }
-        );
-
-        return $this;
     }
 
     /**
@@ -391,9 +306,9 @@ class StaticRouter
     /**
      * @param bool $verbose
      *
-     * @return StaticRouter
+     * @return Router
      */
-    public function setVerbose(bool $verbose): StaticRouter
+    public function setVerbose(bool $verbose): Router
     {
         $this->verbose = $verbose;
 

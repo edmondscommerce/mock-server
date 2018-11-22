@@ -10,15 +10,15 @@ class RouterFactory
     /**
      * @param string|null $publicDir
      *
-     * @return StaticRouter
+     * @return Router
      * @throws \EdmondsCommerce\MockServer\Exception\MockServerException
      */
-    public function make(string $publicDir = null): StaticRouter
+    public function make(string $publicDir = null): Router
     {
         if ($publicDir === null) {
             $publicDir = MockServerConfig::getHtdocsPath();
         }
 
-        return new StaticRouter($publicDir, new RouteCollection());
+        return new Router($publicDir, new RouteCollection());
     }
 }

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace EdmondsCommerce\MockServer\Tests;
+namespace EdmondsCommerce\MockServer\Tests\Integration;
 
-use EdmondsCommerce\MockServer\Factory;
+use EdmondsCommerce\MockServer\MockServerFactory;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 
@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
  * @package EdmondsCommerce\MockServer
  * @SuppressWarnings(PHPMD.StaticAccess)
  */
-class FactoryTest extends TestCase
+class MockServerFactoryTest extends TestCase
 {
 
     /**
@@ -20,7 +20,7 @@ class FactoryTest extends TestCase
      */
     public function testCanGetMockServer():void
     {
-        Factory::getMockServer();
+        MockServerFactory::getServer();
 
         $this->addToAssertionCount(1);
     }
@@ -30,18 +30,18 @@ class FactoryTest extends TestCase
      */
     public function testCanGetstaticRouter():void
     {
-        Factory::getStaticRouter();
+        MockServerFactory::getRouter();
         $this->addToAssertionCount(1);
     }
 
     public function testCanGetLastRequest():void
     {
-        $mockServer = Factory::getMockServer();
+        $mockServer = MockServerFactory::getServer();
         $mockServer->startServer();
         $url    = $mockServer->getUrl('/admin');
         $client = new Client();
         $client->request('GET', $url);
-        $request  = Factory::getLastRequest();
+        $request  = MockServerFactory::getLastRequest();
         $this->assertEquals('/admin', $request->getRequestUri());
     }
 
@@ -50,8 +50,8 @@ class FactoryTest extends TestCase
     {
         $this->expectException(\Exception::class);
         $this->expectExceptionMessageRegExp('%request log file .+? is empty%');
-        $mockServer = Factory::getMockServer();
+        $mockServer = MockServerFactory::getServer();
         $mockServer->startServer();
-        Factory::getLastRequest();
+        MockServerFactory::getLastRequest();
     }
 }

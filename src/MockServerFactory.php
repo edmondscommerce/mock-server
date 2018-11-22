@@ -2,23 +2,22 @@
 
 namespace EdmondsCommerce\MockServer;
 
+use EdmondsCommerce\MockServer\Routing\Router;
 use EdmondsCommerce\MockServer\Routing\RouterFactory;
-use EdmondsCommerce\MockServer\Routing\StaticRouter;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Class Factory
+ * Class MockServerFactory
  *
- * @package         EdmondsCommerce\MockServer
- * @SuppressWarnings(PHPMD.StaticAccess)
+ * @package EdmondsCommerce\MockServer
  */
-class Factory
+class MockServerFactory
 {
     /**
      * @return MockServer
      * @throws \Exception
      */
-    public static function getMockServer(): MockServer
+    public function getServer(): MockServer
     {
         return new MockServer(
             MockServerConfig::getRouterPath(),
@@ -29,11 +28,11 @@ class Factory
     }
 
     /**
-     * @return StaticRouter
+     * @return Router
      * @throws \RuntimeException
      * @throws Exception\MockServerException
      */
-    public static function getStaticRouter(): StaticRouter
+    public function getRouter(): Router
     {
         return (new RouterFactory())->make(MockServerConfig::getHtdocsPath());
     }

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace EdmondsCommerce\MockServer\Tests;
+namespace EdmondsCommerce\MockServer\Tests\Integration;
 
 use EdmondsCommerce\MockServer\MockServer;
 use EdmondsCommerce\MockServer\Testing\MockServerTrait;
@@ -52,7 +52,7 @@ class MockServerTest extends TestCase
 
         $client   = new Client();
         $response = $client->request('GET', $url);
-        $html     = $response->getBody();
+        $html     = $response->getBody()->getContents();
 
         $this->assertEquals('Admin Login', $html);
     }
@@ -103,7 +103,7 @@ class MockServerTest extends TestCase
 
     public function testItServesStaticJsonRoutes(): void
     {
-        $jsonFile = __DIR__ . '/MockServer/files/jsonfile.json';
+        $jsonFile = __DIR__ . '/../MockServer/files/jsonfile.json';
         $url      = $this->mockServer->getUrl('jsonfile.json');
         $client   = new Client();
 

@@ -35,12 +35,12 @@ if (!$autoloadFileFound) {
  */
 function run(callable $runnable)
 {
-    $router = \EdmondsCommerce\MockServer\Factory::getStaticRouter();
+    $router = (new \EdmondsCommerce\MockServer\Routing\RouterFactory())->make();
     $routeFactory = new \EdmondsCommerce\MockServer\Routing\RouteFactory();
     $runnable($router, $routeFactory);
 
     /**
-     * @var $router \EdmondsCommerce\MockServer\Routing\StaticRouter
+     * @var $router \EdmondsCommerce\MockServer\Routing\Router
      */
     $response = $router->run();
     /**

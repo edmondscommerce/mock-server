@@ -1,11 +1,11 @@
 <?php
 
-namespace EdmondsCommerce\MockServer\Tests;
+namespace EdmondsCommerce\MockServer\Tests\Integration;
 
 use EdmondsCommerce\MockServer\MockServer;
 use EdmondsCommerce\MockServer\Routing\RouteFactory;
+use EdmondsCommerce\MockServer\Routing\Router;
 use EdmondsCommerce\MockServer\Routing\RouterFactory;
-use EdmondsCommerce\MockServer\Routing\StaticRouter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 class StaticRouterTest extends TestCase
 {
     /**
-     * @var StaticRouter
+     * @var Router
      */
     private $router;
 
@@ -127,13 +127,13 @@ class StaticRouterTest extends TestCase
 
     public function testStaticRouteSetsContentType(): void
     {
-        $jsonFile               = __DIR__ . '/MockServer/files/jsonfile.json';
+        $jsonFile               = __DIR__ . '/../MockServer/files/jsonfile.json';
         $_SERVER['REQUEST_URI'] = '/jsonfile.json';
-        $this->router->addStaticRoute(
+        $this->router->addRoute($this->routeFactory->staticRoute(
             '/jsonfile.json',
             $jsonFile,
             'application/json'
-        );
+        ));
         $result = $this->router->run();
         if (!$result instanceof Response) {
             throw new \Exception('Failed getting a response');
