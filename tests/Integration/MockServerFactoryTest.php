@@ -20,23 +20,18 @@ class MockServerFactoryTest extends TestCase
      */
     public function testCanGetMockServer():void
     {
-        MockServerFactory::getServer();
+        $server = (new MockServerFactory())->getServer();
 
         $this->addToAssertionCount(1);
     }
+
 
     /**
-     * @throws \Exception
+     * @test
      */
-    public function testCanGetstaticRouter():void
+    public function itCanGetLastRequest():void
     {
-        MockServerFactory::getRouter();
-        $this->addToAssertionCount(1);
-    }
-
-    public function testCanGetLastRequest():void
-    {
-        $mockServer = MockServerFactory::getServer();
+        $mockServer = (new MockServerFactory())->getServer();
         $mockServer->startServer();
         $url    = $mockServer->getUrl('/admin');
         $client = new Client();
@@ -45,12 +40,15 @@ class MockServerFactoryTest extends TestCase
         $this->assertEquals('/admin', $request->getRequestUri());
     }
 
-
-    public function testItWillErrorOnWhenTryingToGetTheRequestBeforeReceivingARequest():void
+    /**
+     * @throws \Exception
+     * @test
+     */
+    public function itWillErrorWhenTryingToGetTheRequestBeforeReceivingARequest():void
     {
         $this->expectException(\Exception::class);
         $this->expectExceptionMessageRegExp('%request log file .+? is empty%');
-        $mockServer = MockServerFactory::getServer();
+        $mockServer = (new MockServerFactory())->getServer();
         $mockServer->startServer();
         MockServerFactory::getLastRequest();
     }

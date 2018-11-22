@@ -48,15 +48,7 @@ class RouteFactory
      */
     public function staticRoute(string $uri, string $filePath, string $contentType = null): Route
     {
-        if (!file_exists($filePath)) {
-            throw new RouterException('Could not find file for static route: ' . $filePath);
-        }
-
-        $fileContents = file_get_contents($filePath);
-        if ($fileContents === false) {
-            throw new RouterException('Could not read file for static route at: ' . realpath($filePath));
-        }
-
+        $fileContents = $this->attemptFileRead($filePath);
         $contentType = $contentType ?? mime_content_type($filePath);
 
         return $this->callbackRoute($uri,
@@ -82,7 +74,6 @@ class RouteFactory
      */
     public function callbackRoute(string $uri, Closure $callback): Route
     {
-        //TODO Use anonymous class with CallbackInterface to restrict usage
         $returnType = (string)(new ReflectionFunction($callback))->getReturnType();
         if ($returnType !== Response::class) {
             throw new \InvalidArgumentException(
@@ -106,22 +97,38 @@ class RouteFactory
      */
     public function downloadRoute(string $uri, string $filePath): Route
     {
-        if (!file_exists($filePath)) {
-            throw new RouterException('File at path ' . $filePath . ' does not exist');
-        }
+        $this->attemptFileRead($filePath);
 
         return $this->callbackRoute(
             $uri,
             function (Request $request) use ($filePath): Response {
                 $response = new BinaryFileResponse($filePath);
-                $response->setContentDisposition(
+
+                return $response->setContentDisposition(
                     ResponseHeaderBag::DISPOSITION_ATTACHMENT,
                     basename($filePath)
-                );
-                $response->prepare($request);
-
-                return $response;
+                )->prepare($request);
             }
         );
+    }
+
+    /**
+     * @param string $filePath
+     *
+     * @return string
+     * @throws RouterException
+     */
+    private function attemptFileRead(string $filePath): string
+    {
+        if (!file_exists($filePath)) {
+            throw new RouterException('File at path ' . $filePath . ' does not exist');
+        }
+
+        $fileContents = file_get_contents($filePath);
+        if ($fileContents === false) {
+            throw new RouterException('Could not read file route at: ' . realpath($filePath));
+        }
+
+        return $fileContents;
     }
 }

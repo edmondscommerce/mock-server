@@ -28,16 +28,6 @@ class MockServerFactory
     }
 
     /**
-     * @return Router
-     * @throws \RuntimeException
-     * @throws Exception\MockServerException
-     */
-    public function getRouter(): Router
-    {
-        return (new RouterFactory())->make(MockServerConfig::getHtdocsPath());
-    }
-
-    /**
      * @return Request
      * @throws \RuntimeException
      */

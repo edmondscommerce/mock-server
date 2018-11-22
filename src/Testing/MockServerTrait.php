@@ -27,8 +27,9 @@ trait MockServerTrait
      */
     protected function setupMockServer(bool $xdebug = false): void
     {
-        $this->mockServer = MockServerFactory::getServer();
-        $this->mockServer->startServer($xdebug);}
+        $this->mockServer = (new MockServerFactory())->getServer();
+        $this->mockServer->startServer($xdebug);
+    }
 
     /**
      * @throws \Exception
