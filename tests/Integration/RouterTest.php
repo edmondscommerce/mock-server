@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @SuppressWarnings(PHPMD.StaticAccess)
  * @SuppressWarnings(PHPMD.Superglobals)
  */
-class StaticRouterTest extends TestCase
+class RouterTest extends TestCase
 {
     /**
      * @var Router
@@ -39,7 +39,7 @@ class StaticRouterTest extends TestCase
 
     public function testItWillReturnTheNotFoundPageWhenNotFound(): void
     {
-        $this->router->setNotFound('Not Found');
+        $this->router->setNotFound(new Response('Not Found'));
         $result = $this->router->run('/does-not-exist');
         if (null === $result) {
             throw new \Exception('response is null');

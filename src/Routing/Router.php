@@ -5,10 +5,8 @@ namespace EdmondsCommerce\MockServer\Routing;
 use EdmondsCommerce\MockServer\Exception\MockServerException;
 use EdmondsCommerce\MockServer\Exception\RouterException;
 use EdmondsCommerce\MockServer\MockServer;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Exception\NoConfigurationException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
@@ -91,9 +89,9 @@ class Router
     private $routes;
 
     /**
-     * @var string
+     * @var Response|null
      */
-    private $notFoundResponse = self::NOT_FOUND;
+    private $notFoundResponse;
 
     /**
      * @var string
@@ -145,35 +143,29 @@ class Router
     }
 
     /**
-     * @param string $response
+     * @param Response $response
      *
      * @return Router
      */
-    public function setNotFound(string $response): Router
+    public function setNotFound(Response $response): Router
     {
         $this->notFoundResponse = $response;
+        $this->notFoundResponse->setStatusCode(404);
 
         return $this;
     }
 
     /**
-     * @param string $file
-     *
-     * @return Router
-     * @throws MockServerException
+     * @return Response
+     * @throws RouterException
      */
-    public function setNotFoundStatic(string $file): Router
+    public function getNotFoundResponse(): Response
     {
-        if (!file_exists($file)) {
-            throw new MockServerException('Could not find 404 file: ' . $file);
+        if ($this->notFoundResponse === null) {
+            throw new RouterException('404, no response defined', 404);
         }
 
-        $fileContents = file_get_contents($file);
-        if ($fileContents === false) {
-            throw new MockServerException('Could not read 404 file at: ' . $file);
-        }
-
-        return $this->setNotFound($fileContents);
+        return $this->notFoundResponse;
     }
 
     /**
@@ -197,14 +189,6 @@ class Router
     }
 
     /**
-     * @throws \InvalidArgumentException
-     */
-    public function respondNotFound(): Response
-    {
-        return new Response($this->notFoundResponse, 404);
-    }
-
-    /**
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @SuppressWarnings(PHPMD.Superglobals)
      * @param string $requestUri
@@ -223,9 +207,11 @@ class Router
         }
         $request = Request::createFromGlobals();
         $this->logRequest($request);
+
         if ($this->isStaticAsset($request)) {
             return null;
         }
+
         return $this->getResponse($request);
     }
 
@@ -257,15 +243,16 @@ class Router
      *
      * @return Response
      * @throws \InvalidArgumentException
+     * @throws RouterException
      */
     protected function getResponse(Request $request): Response
     {
         try {
             $route = $this->matchRoute($request);
         } catch (NoConfigurationException $e) {
-            return $this->respondNotFound();
+            return $this->getNotFoundResponse();
         } catch (RouterException $exception) {
-            return $this->respondNotFound();
+            return $this->getNotFoundResponse();
         }
 
         /**
