@@ -3,7 +3,6 @@
 use EdmondsCommerce\MockServer\Routing;
 use Symfony\Component\HttpFoundation\Response;
 
-require __DIR__ . '/../../src/include/routerTop.php';
 require_once __DIR__ . '/../../src/bootstrap.php';
 
 run(function (Routing\StaticRouter $router, Routing\RouteFactory $factory) {

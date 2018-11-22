@@ -35,8 +35,6 @@ if (!$autoloadFileFound) {
  */
 function run(callable $runnable)
 {
-    require __DIR__ . '/../../vendor/edmondscommerce/mock-server/src/include/routerTop.php';
-
     $router = \EdmondsCommerce\MockServer\Factory::getStaticRouter();
     $routeFactory = new \EdmondsCommerce\MockServer\Routing\RouteFactory();
     $runnable($router, $routeFactory);

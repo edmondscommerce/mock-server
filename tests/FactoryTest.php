@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace EdmondsCommerce\MockServer;
+namespace EdmondsCommerce\MockServer\Tests;
 
+use EdmondsCommerce\MockServer\Factory;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 

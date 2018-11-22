@@ -1,7 +1,8 @@
 <?php
 
-namespace EdmondsCommerce\MockServer;
+namespace EdmondsCommerce\MockServer\Tests;
 
+use EdmondsCommerce\MockServer\MockServer;
 use EdmondsCommerce\MockServer\Routing\RouteFactory;
 use EdmondsCommerce\MockServer\Routing\RouterFactory;
 use EdmondsCommerce\MockServer\Routing\StaticRouter;
@@ -28,7 +29,7 @@ class StaticRouterTest extends TestCase
     private $routeFactory;
 
     /**
-     * @throws Exception\MockServerException
+     * @throws \EdmondsCommerce\MockServer\Exception\MockServerException
      */
     public function setUp(): void
     {

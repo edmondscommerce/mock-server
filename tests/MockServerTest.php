@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace EdmondsCommerce\MockServer;
+namespace EdmondsCommerce\MockServer\Tests;
 
+use EdmondsCommerce\MockServer\MockServer;
 use EdmondsCommerce\MockServer\Testing\MockServerTrait;
 use GuzzleHttp\Client;
 use JakubOnderka\PhpParallelLint\RunTimeException;
@@ -47,7 +48,6 @@ class MockServerTest extends TestCase
 
     public function testItWillHandleFriendlyUrls(): void
     {
-
         $url = $this->mockServer->getUrl('/admin');
 
         $client   = new Client();
@@ -106,7 +106,7 @@ class MockServerTest extends TestCase
         $jsonFile = __DIR__ . '/MockServer/files/jsonfile.json';
         $url      = $this->mockServer->getUrl('jsonfile.json');
         $client   = new Client();
-        
+
         $response = $client->request('GET', $url, ['synchronous' => true]);
 
         $this->assertEquals('application/json', current($response->getHeader('Content-Type')));
