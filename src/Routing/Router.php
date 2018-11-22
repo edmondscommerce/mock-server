@@ -301,4 +301,9 @@ class Router
 
         return $this;
     }
+
+    public function isVerbose():bool
+    {
+        return $this->verbose;
+    }
 }

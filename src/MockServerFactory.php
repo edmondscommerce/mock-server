@@ -2,8 +2,6 @@
 
 namespace EdmondsCommerce\MockServer;
 
-use EdmondsCommerce\MockServer\Routing\Router;
-use EdmondsCommerce\MockServer\Routing\RouterFactory;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -14,16 +12,21 @@ use Symfony\Component\HttpFoundation\Request;
 class MockServerFactory
 {
     /**
+     * @param string $ip
+     * @param int    $port
+     *
      * @return MockServer
      * @throws \Exception
      */
-    public function getServer(): MockServer
-    {
+    public function getServer(
+        string $ip = MockServerConfig::DEFAULT_IP,
+        int $port = MockServerConfig::DEFAULT_PORT
+    ): MockServer {
         return new MockServer(
             MockServerConfig::getRouterPath(),
             MockServerConfig::getHtdocsPath(),
-            MockServerConfig::getIp(),
-            MockServerConfig::getPort()
+            $ip,
+            $port
         );
     }
 
