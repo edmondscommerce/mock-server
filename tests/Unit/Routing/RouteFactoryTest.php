@@ -49,6 +49,8 @@ class RouteFactoryTest extends TestCase
     {
         $result = $this->factory->callbackRoute('/callback',
             function (Request $request): Response {
+
+                $request->query;
                 return new Response('A callback is run');
             }
         );

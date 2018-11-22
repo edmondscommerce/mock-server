@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-export infectionThreads=1
+export infectionThreads=4
+export coveredCodeMSI=70
+

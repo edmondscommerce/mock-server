@@ -6,6 +6,7 @@ use Closure;
 use EdmondsCommerce\MockServer\Exception\RouterException;
 use ReflectionFunction;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
@@ -123,12 +124,7 @@ class RouteFactory
         if (!file_exists($filePath)) {
             throw new RouterException('File at path ' . $filePath . ' does not exist');
         }
-
-        $fileContents = file_get_contents($filePath);
-        if ($fileContents === false) {
-            throw new RouterException('Could not read file route at: ' . realpath($filePath));
-        }
-
-        return $fileContents;
+        //TODO: Handle unreadable file and cover with test
+        return (string)file_get_contents($filePath);
     }
 }

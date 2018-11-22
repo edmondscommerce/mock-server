@@ -5,6 +5,12 @@ namespace EdmondsCommerce\MockServer\Routing;
 use EdmondsCommerce\MockServer\MockServerConfig;
 use Symfony\Component\Routing\RouteCollection;
 
+/**
+ * Class RouterFactory
+ *
+ * @package EdmondsCommerce\MockServer\Routing
+ * @SuppressWarnings(PHPMD.StaticAccess)
+ */
 class RouterFactory
 {
     /**

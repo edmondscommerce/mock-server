@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use EdmondsCommerce\MockServer\Routing;
 use Symfony\Component\HttpFoundation\Response;
 

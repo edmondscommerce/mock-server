@@ -8,6 +8,7 @@ use EdmondsCommerce\MockServer\Routing\Router;
 use EdmondsCommerce\MockServer\Routing\RouterFactory;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouteCollection;
 
 /**
  * Class StaticRouterTest
@@ -50,6 +51,27 @@ class RouterTest extends TestCase
         $this->assertEquals('Not Found', $result->getContent());
     }
 
+    /**
+     * @test
+     * @covers \EdmondsCommerce\MockServer\Routing\Router::isVerbose
+     */
+    public function itCanCheckIfVerbose(): void
+    {
+        $this->assertFalse($this->router->isVerbose());
+    }
+
+
+    /**
+     * @test
+     * @covers \EdmondsCommerce\MockServer\Routing\Router::checkPublicDir
+     * @expectedException \EdmondsCommerce\MockServer\Exception\MockServerException
+     * @expectedExceptionMessageRegExp  /htdocs path does not exist: .+/
+     */
+    public function itWillThrowAnExceptionIfPublicDoesNotExist(): void
+    {
+        new Router('/fake/directory', new RouteCollection());
+    }
+
     public function testItWillMatchARoute(): void
     {
         $this->router->addRoute($this->routeFactory->textRoute('/test', 'Found it'));
@@ -75,6 +97,17 @@ class RouterTest extends TestCase
         $this->assertNotNull($result);
         $this->assertInstanceOf(Response::class, $result);
         $this->assertEquals('Detected', $result->getContent());
+    }
+
+    /**
+     * @test
+     * @covers \EdmondsCommerce\MockServer\Routing\Router::getNotFoundResponse
+     * @expectedException \EdmondsCommerce\MockServer\Exception\RouterException
+     */
+    public function itWillThrowAnExceptionWhenNo404IsSet(): void
+    {
+        $router = (new RouterFactory())->make();
+        $router->run('/dead');
     }
 
     /**

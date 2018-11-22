@@ -8,24 +8,25 @@ use Symfony\Component\HttpFoundation\Request;
  * Class MockServerFactory
  *
  * @package EdmondsCommerce\MockServer
+ * @SuppressWarnings(PHPMD.StaticAccess)
  */
 class MockServerFactory
 {
     /**
-     * @param string $ip
+     * @param string $ipAddress
      * @param int    $port
      *
      * @return MockServer
      * @throws \Exception
      */
     public function getServer(
-        string $ip = MockServerConfig::DEFAULT_IP,
+        string $ipAddress = MockServerConfig::DEFAULT_IP,
         int $port = MockServerConfig::DEFAULT_PORT
     ): MockServer {
         return new MockServer(
             MockServerConfig::getRouterPath(),
             MockServerConfig::getHtdocsPath(),
-            $ip,
+            $ipAddress,
             $port
         );
     }

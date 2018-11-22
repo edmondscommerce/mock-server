@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 /**
+ * @codeCoverageIgnore
  * Ensure we are displaying all errors - these will show up in the logs
  */
 ini_set('display_errors', '1');

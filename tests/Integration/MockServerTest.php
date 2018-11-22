@@ -21,7 +21,7 @@ class MockServerTest extends TestCase
     {
         parent::setUp();
 
-        $this->setupMockServer(true);
+        $this->setupMockServerWithXdebug();
     }
 
     public function tearDown(): void

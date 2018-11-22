@@ -20,7 +20,7 @@ class MockServerFactoryTest extends TestCase
      */
     public function testCanGetMockServer():void
     {
-        $server = (new MockServerFactory())->getServer();
+        (new MockServerFactory())->getServer();
 
         $this->addToAssertionCount(1);
     }
