@@ -21,12 +21,15 @@ trait MockServerTrait
 
 
     /**
+     * @param bool $xdebug
+     *
      * @throws \Exception
      */
-    protected function setupMockServer(): void
+    protected function setupMockServer(bool $xdebug = false): void
     {
         $this->mockServer = Factory::getMockServer();
-        $this->mockServer->startServer(false);
+        $this->mockServer->startServer($xdebug);
+        usleep(200);
     }
 
     /**

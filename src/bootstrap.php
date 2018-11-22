@@ -38,8 +38,8 @@ function run(callable $runnable)
     require __DIR__ . '/../../vendor/edmondscommerce/mock-server/src/include/routerTop.php';
 
     $router = \EdmondsCommerce\MockServer\Factory::getStaticRouter();
-
-    $runnable($router);
+    $routeFactory = new \EdmondsCommerce\MockServer\Routing\RouteFactory();
+    $runnable($router, $routeFactory);
 
     /**
      * @var $router \EdmondsCommerce\MockServer\Routing\StaticRouter

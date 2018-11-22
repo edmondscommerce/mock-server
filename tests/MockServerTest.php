@@ -16,13 +16,27 @@ class MockServerTest extends TestCase
 {
     use MockServerTrait;
 
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->setupMockServer(true);
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+
+        $this->tearDownMockServer();
+    }
+
     /**
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @skip
      */
-    public function testItWillHandleARoutingFile():void
+    public function testItWillHandleARoutingFile(): void
     {
-        $url = static::$mockServer->getUrl('/routed');
+        $url = $this->mockServer->getUrl('/routed');
 
         $client   = new Client();
         $response = $client->request('GET', $url);
@@ -31,10 +45,10 @@ class MockServerTest extends TestCase
         $this->assertEquals('Routed', $html);
     }
 
-    public function testItWillHandleFriendlyUrls():void
+    public function testItWillHandleFriendlyUrls(): void
     {
 
-        $url = static::$mockServer->getUrl('/admin');
+        $url = $this->mockServer->getUrl('/admin');
 
         $client   = new Client();
         $response = $client->request('GET', $url);
@@ -47,19 +61,19 @@ class MockServerTest extends TestCase
      * @SuppressWarnings(PHPMD.StaticAccess)
      * @throws \Exception
      */
-    public function testItWillClearTheRequestOnStart():void
+    public function testItWillClearTheRequestOnStart(): void
     {
-        $requestFile = MockServer::getLogsPath().'/'.MockServer::REQUEST_FILE;
+        $requestFile = MockServer::getLogsPath() . '/' . MockServer::REQUEST_FILE;
         touch($requestFile);
 
-        static::$mockServer->startServer();
+        $this->mockServer->startServer();
         $contents = file_get_contents($requestFile);
-        $this->assertEmpty($contents, 'request file contains: '.$contents);
+        $this->assertEmpty($contents, 'request file contains: ' . $contents);
     }
 
-    public function testItServesDownloadRoutes():void
+    public function testItServesDownloadRoutes(): void
     {
-        $url      = static::$mockServer->getUrl('/download');
+        $url      = $this->mockServer->getUrl('/download');
         $client   = new Client();
         $buffer   = fopen('php://temp', 'w');
         $response = $client->request(
@@ -74,14 +88,12 @@ class MockServerTest extends TestCase
             'attachment; filename=downloadfile.extension',
             current($response->getHeader('Content-Disposition'))
         );
-        if(!is_resource($buffer))
-        {
+        if (!is_resource($buffer)) {
             throw new RunTimeException('Expected a resource');
         }
         rewind($buffer);
         $contents = fread($buffer, 9999);
-        if(!is_string($contents))
-        {
+        if (!is_string($contents)) {
             throw new RunTimeException('Error reading from resource');
         }
         $this->assertNotEmpty($contents);
@@ -89,12 +101,14 @@ class MockServerTest extends TestCase
         fclose($buffer);
     }
 
-    public function testItServesStaticJsonRoutes():void
+    public function testItServesStaticJsonRoutes(): void
     {
-        $jsonFile = __DIR__.'/MockServer/files/jsonfile.json';
-        $url      = static::$mockServer->getUrl('jsonfile.json');
+        $jsonFile = __DIR__ . '/MockServer/files/jsonfile.json';
+        $url      = $this->mockServer->getUrl('jsonfile.json');
         $client   = new Client();
+        
         $response = $client->request('GET', $url, ['synchronous' => true]);
+
         $this->assertEquals('application/json', current($response->getHeader('Content-Type')));
         $this->assertStringEqualsFile($jsonFile, $response->getBody()->getContents());
     }

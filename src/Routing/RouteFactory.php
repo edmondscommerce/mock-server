@@ -2,10 +2,13 @@
 
 namespace EdmondsCommerce\MockServer\Routing;
 
+use Closure;
 use EdmondsCommerce\MockServer\Exception\RouterException;
 use ReflectionFunction;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Route;
 
 class RouteFactory
@@ -33,6 +36,7 @@ class RouteFactory
     /**
      * Route that returns a file's content as the response
      * Will attempt to also give the correct mime type of the file
+     *
      * @param string      $uri
      * @param string      $filePath
      *
@@ -70,13 +74,13 @@ class RouteFactory
     }
 
     /**
-     * @param string   $uri
-     * @param callable $callback
+     * @param string  $uri
+     * @param Closure $callback
      *
      * @return Route
      * @throws \ReflectionException
      */
-    public function callbackRoute(string $uri, callable $callback): Route
+    public function callbackRoute(string $uri, Closure $callback): Route
     {
         //TODO Use anonymous class with CallbackInterface to restrict usage
         $returnType = (string)(new ReflectionFunction($callback))->getReturnType();
@@ -92,8 +96,32 @@ class RouteFactory
         ]);
     }
 
-    public function downloadRoute(): Route
+    /**
+     * @param string $uri
+     * @param string $filePath
+     *
+     * @return Route
+     * @throws RouterException
+     * @throws \ReflectionException
+     */
+    public function downloadRoute(string $uri, string $filePath): Route
     {
+        if (!file_exists($filePath)) {
+            throw new RouterException('File at path ' . $filePath . ' does not exist');
+        }
 
+        return $this->callbackRoute(
+            $uri,
+            function (Request $request) use ($filePath): Response {
+                $response = new BinaryFileResponse($filePath);
+                $response->setContentDisposition(
+                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                    basename($filePath)
+                );
+                $response->prepare($request);
+
+                return $response;
+            }
+        );
     }
 }

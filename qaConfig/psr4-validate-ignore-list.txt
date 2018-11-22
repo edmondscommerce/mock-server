@@ -1,2 +1,2 @@
 #.*/tests/MockServer/router\.php#
-#.*/src/include/.*#
+#.*/src/bootstrap\.php#
