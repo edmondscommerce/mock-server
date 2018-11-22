@@ -118,11 +118,12 @@ class RouterTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $_SERVER['REQUEST_URI'] = '/some-callback';
 
-        $this->router->addRoute($this->routeFactory->callbackRoute('/bad-return-type',
+        $this->router->addRoute($this->routeFactory->callbackRoute(
+            '/bad-return-type',
             function () {
                 return 'this function does not have the correct return type';
-            })
-        );
+            }
+        ));
 
         $this->router->run();
     }
@@ -133,11 +134,12 @@ class RouterTest extends TestCase
     public function testItCanHandleCallbackRoutes(): void
     {
         $_SERVER['REQUEST_URI'] = '/some-callback';
-        $this->router->addRoute($this->routeFactory->callbackRoute('/some-callback',
+        $this->router->addRoute($this->routeFactory->callbackRoute(
+            '/some-callback',
             function (): Response {
                 return new Response('This is a callback result');
-            })
-        );
+            }
+        ));
 
         $result = $this->router->run();
 

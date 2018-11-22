@@ -13,8 +13,8 @@ run(function (Routing\Router $router, Routing\RouteFactory $factory) {
         '/callbackRoute',
         function (): Response {
             return new Response('callback response');
-        })
-    );
+        }
+    ));
 
     $router->addRoute($factory->textRoute('/routed', 'Routed'));
     $router->addRoute($factory->textRoute('/admin', 'Admin Login'));

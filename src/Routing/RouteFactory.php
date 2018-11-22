@@ -52,7 +52,8 @@ class RouteFactory
         $fileContents = $this->attemptFileRead($filePath);
         $contentType = $contentType ?? mime_content_type($filePath);
 
-        return $this->callbackRoute($uri,
+        return $this->callbackRoute(
+            $uri,
             function (Request $request) use ($filePath, $fileContents, $contentType): Response {
 
                 $response = new Response($fileContents);
