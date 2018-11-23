@@ -11,7 +11,7 @@ function boostrap()
     error_reporting(E_ALL);
 
     $files = [
-        __DIR__ . '/../../../../autoload.php',
+        __DIR__ . '/../../../autoload.php',
         __DIR__ . '/../vendor/autoload.php',
     ];
 
