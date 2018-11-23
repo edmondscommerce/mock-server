@@ -6,7 +6,7 @@ use Closure;
 use EdmondsCommerce\MockServer\Exception\RouterException;
 use ReflectionFunction;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
@@ -50,7 +50,7 @@ class RouteFactory
     public function staticRoute(string $uri, string $filePath, string $contentType = null): Route
     {
         $fileContents = $this->attemptFileRead($filePath);
-        $contentType = $contentType ?? mime_content_type($filePath);
+        $contentType  = $contentType ?? mime_content_type($filePath);
 
         return $this->callbackRoute(
             $uri,
@@ -115,6 +115,26 @@ class RouteFactory
     }
 
     /**
+     * Creates a route corresponding to a form request
+     * Redirects to a new URI
+     *
+     * @param string $uri
+     * @param string $method
+     *
+     * @param string $redirectUri
+     *
+     * @return Route
+     */
+    public function formRoute(string $uri, string $method, string $redirectUri): Route
+    {
+        $route = new Route($uri);
+        $route->setDefaults(['response' => new RedirectResponse($redirectUri)])
+              ->setMethods($method);
+
+        return $route;
+    }
+
+    /**
      * @param string $filePath
      *
      * @return string
@@ -125,6 +145,7 @@ class RouteFactory
         if (!file_exists($filePath)) {
             throw new RouterException('File at path ' . $filePath . ' does not exist');
         }
+
         //TODO: Handle unreadable file and cover with test
         return (string)file_get_contents($filePath);
     }

@@ -81,6 +81,19 @@ class RouteFactoryTest extends TestCase
 
     /**
      * @test
+     * @covers \EdmondsCommerce\MockServer\Routing\RouteFactory::formRoute
+     */
+    public function itCanCreateAFormRoute(): void
+    {
+        $route = $this->factory->formRoute('/form', 'POST', '/success');
+
+        $this->assertContains('POST', $route->getMethods());
+        $this->assertEquals('/form', $route->getPath());
+        $this->assertInstanceOf(Response::class, $route->getDefault('response'));
+    }
+
+    /**
+     * @test
      * @covers \EdmondsCommerce\MockServer\Routing\RouteFactory::attemptFileRead
      * @expectedException \EdmondsCommerce\MockServer\Exception\RouterException
      * @expectedExceptionMessageRegExp /File at path .+ does not exist/
