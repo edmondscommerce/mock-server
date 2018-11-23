@@ -7,6 +7,7 @@ use EdmondsCommerce\MockServer\Exception\RouterException;
 use EdmondsCommerce\MockServer\MockServer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Exception\NoConfigurationException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
@@ -196,6 +197,7 @@ class Router
      * @return Response
      * @throws \Exception
      * @throws \InvalidArgumentException
+     * @throws \Throwable
      */
     public function run(string $requestUri = null): ?Response
     {
@@ -212,7 +214,27 @@ class Router
             return null;
         }
 
-        return $this->getResponse($request);
+        try {
+            return $this->getResponse($request);
+        } catch (\Throwable $e) {
+            return $this->handleError($e);
+        }
+    }
+
+    /**
+     * @param \Throwable $throwable
+     *
+     * @return Response
+     * @throws \Throwable
+     */
+    private function handleError(\Throwable $throwable):Response
+    {
+        if($throwable instanceof MethodNotAllowedException)
+        {
+            return new Response('Route does not allow this type of request', 500);
+        }
+
+        throw $throwable;
     }
 
     /**
@@ -262,6 +284,11 @@ class Router
             return $route['_controller']($request);
         }
 
+        if(isset($route['response'])&& $route['response'] instanceof Response)
+        {
+            return $route['response'];
+        }
+
         return new Response($route['response']);
     }
 
@@ -302,7 +329,7 @@ class Router
         return $this;
     }
 
-    public function isVerbose():bool
+    public function isVerbose(): bool
     {
         return $this->verbose;
     }

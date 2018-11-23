@@ -128,7 +128,7 @@ class RouteFactory
     public function formRoute(string $uri, string $method, string $redirectUri): Route
     {
         $route = new Route($uri);
-        $route->setDefaults(['response' => new RedirectResponse($redirectUri)])
+        $route->setDefaults(['response' => new RedirectResponse($redirectUri, 302)])
               ->setMethods($method);
 
         return $route;

@@ -16,8 +16,12 @@ run(function (Routing\Router $router, Routing\RouteFactory $factory) {
         }
     ));
 
+    $router->setNotFound(new Response('404 Not Found'));
+
     $router->addRoute($factory->textRoute('/routed', 'Routed'));
     $router->addRoute($factory->textRoute('/admin', 'Admin Login'));
     $router->addRoute($factory->downloadRoute('/download', __DIR__ . '/files/downloadfile.extension'));
     $router->addRoute($factory->staticRoute('/jsonfile.json', __DIR__ . '/files/jsonfile.json', 'application/json'));
+    $router->addRoute($factory->formRoute('/form', 'POST', '/success'));
+    $router->addRoute($factory->textRoute('/success', 'It redirects'));
 });

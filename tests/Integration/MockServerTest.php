@@ -5,6 +5,7 @@ namespace EdmondsCommerce\MockServer\Tests\Integration;
 use EdmondsCommerce\MockServer\MockServer;
 use EdmondsCommerce\MockServer\Testing\MockServerTrait;
 use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
 use JakubOnderka\PhpParallelLint\RunTimeException;
 use PHPUnit\Framework\TestCase;
 
@@ -111,5 +112,29 @@ class MockServerTest extends TestCase
 
         $this->assertEquals('application/json', current($response->getHeader('Content-Type')));
         $this->assertStringEqualsFile($jsonFile, $response->getBody()->getContents());
+    }
+
+    /**
+     * @test
+     * @coversNothing
+     */
+    public function itWillHandleFormRequestRedirects(): void
+    {
+        $url    = $this->mockServer->getUrl('/form');
+        $client = new Client(
+            [
+                RequestOptions::ALLOW_REDIRECTS => [
+                    'track_redirects' => true,
+                ],
+            ]
+        );
+
+        $response            = $client->request('POST', $url, ['synchronous' => true]);
+        $redirectUriHistory  = $response->getHeader('X-Guzzle-Redirect-History');
+        $redirectCodeHistory = $response->getHeader('X-Guzzle-Redirect-Status-History');
+
+        $this->assertEquals('It redirects', $response->getBody()->getContents());
+        $this->assertEquals(302, array_shift($redirectCodeHistory));
+        $this->assertEquals('http://0.0.0.0:8080/success', array_shift($redirectUriHistory));
     }
 }

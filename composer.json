@@ -32,7 +32,7 @@
     },
     "require-dev": {
         "edmondscommerce/phpqa": "^2.0",
-        "guzzlehttp/guzzle": "~6",
+        "guzzlehttp/guzzle": "~6.0",
         "phpstan/phpstan-phpunit": "^0.10.0"
     },
     "bin": [
