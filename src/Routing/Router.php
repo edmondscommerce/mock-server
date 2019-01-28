@@ -116,8 +116,6 @@ class Router
     {
         $this->routes     = $routes;
         $this->htdocsPath = $publicDir;
-
-        $this->checkPublicDir();
     }
 
     /**
@@ -163,7 +161,7 @@ class Router
     public function getNotFoundResponse(): Response
     {
         if ($this->notFoundResponse === null) {
-            throw new RouterException('404, no response defined', 404);
+            return new Response('404 - Not Found: Route not defined', 404);
         }
 
         return $this->notFoundResponse;
@@ -227,10 +225,9 @@ class Router
      * @return Response
      * @throws \Throwable
      */
-    private function handleError(\Throwable $throwable):Response
+    private function handleError(\Throwable $throwable): Response
     {
-        if($throwable instanceof MethodNotAllowedException)
-        {
+        if ($throwable instanceof MethodNotAllowedException) {
             return new Response('Route does not allow this type of request', 500);
         }
 
@@ -284,8 +281,7 @@ class Router
             return $route['_controller']($request);
         }
 
-        if(isset($route['response'])&& $route['response'] instanceof Response)
-        {
+        if (isset($route['response']) && $route['response'] instanceof Response) {
             return $route['response'];
         }
 
