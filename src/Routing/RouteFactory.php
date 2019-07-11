@@ -47,7 +47,7 @@ class RouteFactory
      * @throws RouterException
      * @throws \ReflectionException
      */
-    public function staticRoute(string $uri, string $filePath, string $contentType = null): Route
+    public function staticRoute(string $uri, string $filePath, string $contentType = 'text/html'): Route
     {
         $fileContents = $this->attemptFileRead($filePath);
         $contentType  = $contentType ?? mime_content_type($filePath);
