@@ -52,6 +52,9 @@ class RouteFactory
         $fileContents = $this->attemptFileRead($filePath);
         $contentType  = $contentType ?? mime_content_type($filePath);
 
+        // Decode characters - Symfony router performs this change before matching routes
+        $uri = rawurldecode($uri);
+
         return $this->callbackRoute(
             $uri,
             function (Request $request) use ($filePath, $fileContents, $contentType): Response {
