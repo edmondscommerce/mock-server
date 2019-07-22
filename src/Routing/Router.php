@@ -202,9 +202,7 @@ class Router
         if (null !== $requestUri) {
             $_SERVER['REQUEST_URI'] = $requestUri;
         }
-        if ('/' === $_SERVER['REQUEST_URI']) {
-            $_SERVER['REQUEST_URI'] = '/index.html';
-        }
+
         $request = Request::createFromGlobals();
         $this->logRequest($request);
 
